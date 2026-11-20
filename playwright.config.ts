@@ -6,7 +6,7 @@ import { defineConfig, devices } from "@playwright/test";
  * Default runs execute the `chromium` and `webkit` projects against the
  * production frontend build with the mini in-memory snapshot (`build:e2e`).
  * The `media` project is selected only through `npm run capture:media`; it
- * serves the full-snapshot capture build from port 4174 at 1440x900 @2x.
+ * serves the full-snapshot capture build from port 18174 at 1440x1280 @2x.
  */
 const mediaRun = process.argv.includes("--project=media");
 
@@ -20,7 +20,7 @@ export default defineConfig({
     ["json", { outputFile: ".generated/playwright.json" }],
   ],
   use: {
-    baseURL: "http://localhost:4173",
+    baseURL: "http://localhost:18173",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
@@ -40,24 +40,27 @@ export default defineConfig({
       testMatch: "**/media/**/*.spec.ts",
       use: {
         ...devices["Desktop Chrome"],
-        baseURL: "http://localhost:4174",
-        viewport: { width: 1440, height: 900 },
+        baseURL: "http://localhost:18174",
+        viewport: { width: 1440, height: 1280 },
         deviceScaleFactor: 2,
         locale: "en-US",
         colorScheme: "light",
+        // Tokens collapse every duration under reduced motion, so no capture
+        // can land in the middle of a dialog or chart animation.
+        reducedMotion: "reduce",
       },
     },
   ],
   webServer: mediaRun
     ? {
-        command: "npm run preview -- --port 4174 --strictPort",
-        url: "http://localhost:4174",
+        command: "npm run preview -- --port 18174 --strictPort",
+        url: "http://localhost:18174",
         reuseExistingServer: !process.env.CI,
         timeout: 180_000,
       }
     : {
-        command: "npm run build:e2e && npm run preview -- --port 4173 --strictPort",
-        url: "http://localhost:4173",
+        command: "npm run build:e2e && npm run preview -- --port 18173 --strictPort",
+        url: "http://localhost:18173",
         reuseExistingServer: !process.env.CI,
         timeout: 180_000,
       },

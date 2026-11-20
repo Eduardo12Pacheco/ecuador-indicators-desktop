@@ -15,6 +15,11 @@ import { createConnection } from "node:net";
 import { fileURLToPath } from "node:url";
 
 const configDir = dirname(fileURLToPath(import.meta.url));
+
+// Ports stay in the 18000-18999 range reserved for this repository so parallel
+// test runs of other projects never collide with tauri-driver's 4444/4445 defaults.
+const DRIVER_PORT = 18444;
+const NATIVE_DRIVER_PORT = 18445;
 const repoRoot = resolve(configDir, "..");
 const isWindows = process.platform === "win32";
 const appBinary = resolve(
@@ -92,12 +97,13 @@ export async function onPrepare(): Promise<void> {
   driverHome = mkdtempSync(join(tmpdir(), "ecuador-indicators-native-"));
   mkdirSync(resolve(configDir, "artifacts"), { recursive: true });
 
-  driver = spawn(driverPath, [], {
+  const driverArgs = ["--port", String(DRIVER_PORT), "--native-port", String(NATIVE_DRIVER_PORT)];
+  driver = spawn(driverPath, driverArgs, {
     cwd: configDir,
     env: { ...process.env, ECUADOR_INDICATORS_HOME: driverHome },
     stdio: "inherit",
   });
-  await waitForPort(4444, 30_000);
+  await waitForPort(DRIVER_PORT, 30_000);
 }
 
 export async function onComplete(): Promise<void> {
@@ -114,7 +120,7 @@ export async function onComplete(): Promise<void> {
 export const config = {
   runner: "local",
   hostname: "127.0.0.1",
-  port: 4444,
+  port: DRIVER_PORT,
   path: "/",
   specs: ["./specs/*.e2e.ts"],
   maxInstances: 1,

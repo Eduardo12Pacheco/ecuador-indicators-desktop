@@ -244,7 +244,7 @@ describe("Tauri native dialogs", () => {
           if (options.saveError !== undefined) {
             throw options.saveError;
           }
-          return options.saveResult === undefined ? "/home/eduardo/out.csv" : options.saveResult;
+          return options.saveResult === undefined ? "/home/user/out.csv" : options.saveResult;
         },
         async open(dialogOptions) {
           opened.push(dialogOptions);
@@ -268,7 +268,7 @@ describe("Tauri native dialogs", () => {
       kind: "csv",
       content: "a,b\r\n1,2\r\n",
     });
-    expect(result).toEqual({ ok: true, value: "/home/eduardo/out.csv" });
+    expect(result).toEqual({ ok: true, value: "/home/user/out.csv" });
     expect(harness.saved[0]?.defaultPath).toBe("ecuador-GDP-2000-2020.csv");
     expect(harness.calls).toHaveLength(1);
     expect(harness.calls[0]?.command).toBe("export_save");

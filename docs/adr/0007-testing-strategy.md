@@ -22,7 +22,7 @@ exercise the recovery paths from S12. Native E2E is a separate layer (T12).
   there is no visual-regression suite because cross-OS font rasterization makes
   it brittle.
 - **Test the production frontend.** The config runs `npm run build:e2e` and
-  Vite preview on port 4173. That build loads the mini JSON snapshot through
+  Vite preview on port 18173. That build loads the mini JSON snapshot through
   the in-memory adapter, so tests exercise the same code paths as the browser
   build while staying deterministic and offline. The native IPC adapter is
   covered by Rust command tests and by T12.

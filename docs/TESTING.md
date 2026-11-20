@@ -54,7 +54,7 @@ uv run mypy --strict src
 
 `npm run test:e2e` uses `playwright.config.ts`: it runs `npm run build:e2e`
 (mini JSON snapshot through the in-memory adapter) and then serves `dist/` on
-port 4173. `e2e/media/**` belongs to the capture project and is ignored by the
+port 18173. `e2e/media/**` belongs to the capture project and is ignored by the
 default run.
 
 ## What the E2E suite covers
@@ -122,15 +122,17 @@ Numbers measured on v0.1.0 (2026-11-20):
 
 | Artifact | Value | Produced by |
 |---|---|---|
-| TypeScript lines / branches / statements / functions | 91.49% / 83.39% / 91.48% / 91.28% | `npm run test:cov` → `coverage/coverage-summary.json` |
+| TypeScript lines / branches / statements / functions | 91.67% / 83.82% / 91.64% / 91.57% | `npm run test:cov` → `coverage/coverage-summary.json` |
 | Python pipeline coverage | 96.1% | `uv run pytest` → `pipeline/coverage.json` |
-| Browser E2E tests | 126 passed (63 Chromium + 63 WebKit) | `npm run test:e2e` → `.generated/playwright.json` |
-| Rust `indicators-core` lines | 85% gate in CI | `cargo llvm-cov --fail-under-lines 85` |
-| JavaScript gzip total | 391,882 B (budget 716,800 B) | `npm run build` + `node scripts/check-bundle-size.mjs` |
+| Browser E2E scenarios | 68 per browser project; 68 passed on Chromium locally, the WebKit project runs in CI | `npm run test:e2e` → `.generated/playwright.json` (`npm run metrics` → `playwright.scenarios`) |
+| Rust `indicators-core` lines | 92.1% measured (gate 85%) | `cargo llvm-cov -p indicators-core --fail-under-lines 85` |
+| JavaScript gzip total | 392,300 B (budget 716,800 B) | `npm run build` + `node scripts/check-bundle-size.mjs` |
 | Snapshot | 38 indicators, 8 topics, 7 geographies, 11,780 observations | `data/MANIFEST.json` |
 
-`npm run metrics` prints the same values as JSON. The Rust number is a declared
-CI threshold, not a local measurement: the host has no `cargo-llvm-cov` (D23).
+`npm run metrics` prints the same values as JSON, except the Rust number, which
+comes from `cargo llvm-cov` (measured locally with cargo-llvm-cov 0.9.1 and the
+distribution's LLVM tools via `LLVM_COV`/`LLVM_PROFDATA`, and enforced in CI by
+the `rust-coverage` job).
 
 ## CI job map
 
