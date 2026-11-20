@@ -1,0 +1,122 @@
+name: Release
+
+# Tag-driven release (S29): every installer is built on its native runner,
+# installed on a clean runner, smoke-tested with `--self-check`, and only then
+# published together with checksums, generated notes and provenance. A manual
+# dispatch defaults to a dry run, which builds and smoke-tests but never
+# publishes because the publish job only runs for tags.
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build and smoke-test every installer without publishing a release
+        type: boolean
+        default: true
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  verify:
+    name: Verify version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+        with:
+          linux-deps: "false"
+
+      - name: Check the version and release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            node scripts/check-version-sync.mjs --tag "$GITHUB_REF_NAME"
+          else
+            node scripts/check-version-sync.mjs
+          fi
+
+  build:
+    name: Build ${{ matrix.name }}
+    needs: verify
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x64
+            os: ubuntu-22.04
+            args: ""
+            platform: linux
+            arch: x64
+            target-dir: target/release/bundle
+            rust-targets: ""
+          - name: windows-x64
+            os: windows-latest
+            args: ""
+            platform: windows
+            arch: x64
+            target-dir: target/release/bundle
+            rust-targets: ""
+          - name: macos-arm64
+            os: macos-latest
+            args: --target aarch64-apple-darwin
+            platform: macos
+            arch: arm64
+            target-dir: target/aarch64-apple-darwin/release/bundle
+            rust-targets: aarch64-apple-darwin,x86_64-apple-darwin
+          - name: macos-x64
+            os: macos-latest
+            args: --target x86_64-apple-darwin
+            platform: macos
+            arch: x64
+            target-dir: target/x86_64-apple-darwin/release/bundle
+            rust-targets: aarch64-apple-darwin,x86_64-apple-darwin
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+        with:
+          rust-targets: ${{ matrix.rust-targets }}
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Read the shared version
+        id: version
+        shell: bash
+        run: echo "value=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Build the installers
+        uses: tauri-apps/tauri-action@v1
+        with:
+          args: ${{ matrix.args }}
+
+      - name: Collect the D28 release assets
+        shell: bash
+        run: |
+          node scripts/collect-artifacts.mjs \
+            --version "${{ steps.version.outputs.value }}" \
+            --platform "${{ matrix.platform }}" \
+            --arch "${{ matrix.arch }}" \
+            --target-dir "${{ matrix.target-dir }}" \
+            --out release-assets
+
+      - name: Upload the installers
+        uses: actions/upload-artifact@v7
+        with:
+          name: installer-${{ matrix.name }}
+          path: release-assets/
+          if-no-files-found: error
+          retention-days: 7
