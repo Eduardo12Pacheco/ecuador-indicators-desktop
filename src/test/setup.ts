@@ -24,6 +24,10 @@ if (typeof window !== "undefined") {
       }) as unknown as MediaQueryList;
   }
 
+  if (typeof Element !== "undefined" && typeof Element.prototype.scrollIntoView !== "function") {
+    Element.prototype.scrollIntoView = () => undefined;
+  }
+
   if (typeof globalThis.ResizeObserver !== "function") {
     class ResizeObserverStub {
       observe(): void {}

@@ -103,12 +103,41 @@ where gaps render as an em dash with a visually hidden "No data" label.
 - Axe scans the shell and the design gallery in both themes in Vitest; T11
   repeats them in a real browser for contrast and layout.
 
+## Compare views
+
+Trajectories index two to four indicators of one geography to a base year, using
+series slots 1 to 4 in selection order plus a dashed reference line at 100.
+Ranking draws horizontal bars in descending order, colours Ecuador with
+`--series-1` and keeps every other geography on `--color-border-strong`, so the
+highlight survives a monochrome print. Both tabs share the Chart/Data table
+toggle and the chart keyboard contract above; the ranking table lists
+geographies without a value last as "No data" and shows the difference against
+Ecuador in the value's own decimal precision.
+
 ## Shortcuts
 
-The command registry and the final shortcut table arrive in T9; the D26 map is
-the binding contract: `Mod+K` palette, `?` help, `g` then `e|c|v|s`, `[`/`]`
-previous/next indicator, `Mod+S` save view, `Mod+Shift+C` CSV, `Mod+Shift+P`
-PNG, `Mod+Shift+D` toggle theme.
+`src/app/shortcuts/registry.ts` is the single place that defines commands and
+shortcuts; `use-shortcuts.ts` is the only global keydown listener. `Mod` is
+Ctrl on Windows/Linux and Cmd on macOS. `g` chords time out after one second and
+are ignored while typing in an input, textarea, select or contenteditable
+element, and while a dialog is open (except `Mod+K`).
+
+| Action | Shortcut |
+|---|---|
+| Open the command palette | `Mod+K` |
+| Show the shortcut help | `?` |
+| Go to Explore | `g` then `e` |
+| Go to Compare: Trajectories | `g` then `c` |
+| Go to Saved views | `g` then `v` |
+| Go to Settings | `g` then `s` |
+| Previous / next indicator (Explore) | `[` / `]` |
+| Toggle light and dark theme | `Mod+Shift+D` |
+
+The palette searches indicators, geographies, saved views and commands with the
+same deterministic, diacritic-insensitive ranking as the catalog panel. Results
+are announced through a polite live region, the listbox keeps a single tab stop,
+and closing the palette returns focus to the element that opened it. T10 adds
+`Mod+S` save view, `Mod+Shift+C` CSV and `Mod+Shift+P` PNG.
 
 ## Development
 
