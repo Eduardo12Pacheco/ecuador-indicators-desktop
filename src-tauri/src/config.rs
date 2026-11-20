@@ -5,10 +5,14 @@
 //! The paths mirror Tauri's `app_data_dir`/`app_log_dir` for the bundle
 //! identifier so both entry points share one store.
 
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 /// Tauri bundle identifier (D27).
 pub const BUNDLE_IDENTIFIER: &str = "io.github.eduardo12pacheco.ecuadorindicators";
+/// Tauri product name, also used by the Linux and AppImage resource directory.
+pub const PRODUCT_NAME: &str = "Ecuador Indicators";
+/// Cargo binary name used by the Linux and AppImage resource directory fallback.
+pub const BINARY_NAME: &str = "ecuador-indicators";
 /// Candidate path of the bundled snapshot inside a source checkout.
 pub const SOURCE_SNAPSHOT: &str = "data/snapshot/ecuador-indicators.snapshot.sqlite";
 /// Candidate path of the bundled manifest inside a source checkout.
@@ -91,6 +95,45 @@ fn log_root() -> PathBuf {
     }
 }
 
+/// Candidate locations for a bundled resource relative to the executable.
+///
+/// Tauri places Windows resources next to the executable, macOS resources in
+/// `Contents/Resources`, and Linux/AppImage resources in
+/// `/usr/lib/<product>/data` while the executable lives in `/usr/bin`. The
+/// Linux layouts are the reason this is not just `exe_dir.join(resource)`.
+fn bundled_resource_candidates(executable_dir: &Path, resource: &str) -> Vec<PathBuf> {
+    [
+        executable_dir.join(resource),
+        executable_dir.join("../Resources").join(resource),
+        executable_dir
+            .join("../lib")
+            .join(PRODUCT_NAME)
+            .join(resource),
+        executable_dir
+            .join("../lib")
+            .join(BINARY_NAME)
+            .join(resource),
+    ]
+    .into_iter()
+    .map(normalize)
+    .collect()
+}
+
+/// Resolves `..` lexically so candidate paths are comparable and readable.
+fn normalize(path: PathBuf) -> PathBuf {
+    let mut normalized = PathBuf::new();
+    for component in path.components() {
+        match component {
+            Component::ParentDir => {
+                normalized.pop();
+            }
+            Component::CurDir => {}
+            other => normalized.push(other.as_os_str()),
+        }
+    }
+    normalized
+}
+
 impl AppConfig {
     /// Resolves the documented environment variables with deterministic defaults.
     #[must_use]
@@ -129,8 +172,7 @@ impl AppConfig {
             .ok()
             .and_then(|path| path.parent().map(Path::to_path_buf))
         {
-            candidates.push(executable.join(RESOURCE_SNAPSHOT));
-            candidates.push(executable.join("../Resources").join(RESOURCE_SNAPSHOT));
+            candidates.extend(bundled_resource_candidates(&executable, RESOURCE_SNAPSHOT));
             candidates.push(executable.join("../..").join(SOURCE_SNAPSHOT));
         }
         candidates
@@ -144,8 +186,7 @@ impl AppConfig {
             .ok()
             .and_then(|path| path.parent().map(Path::to_path_buf))
         {
-            candidates.push(executable.join(RESOURCE_MANIFEST));
-            candidates.push(executable.join("../Resources").join(RESOURCE_MANIFEST));
+            candidates.extend(bundled_resource_candidates(&executable, RESOURCE_MANIFEST));
             candidates.push(executable.join("../..").join(SOURCE_MANIFEST));
         }
         candidates
@@ -201,5 +242,32 @@ mod tests {
     fn without_an_override_the_repository_snapshot_is_preferred_when_present() {
         let resolved = config(None).resolve_snapshot();
         assert_eq!(resolved, PathBuf::from(super::SOURCE_SNAPSHOT));
+    }
+
+    #[test]
+    fn linux_package_resources_are_found_under_usr_lib() {
+        let root = tempfile::tempdir().expect("tempdir");
+        let executable_dir = root.path().join("usr/bin");
+        let resource_dir = root.path().join("usr/lib/Ecuador Indicators/data");
+        std::fs::create_dir_all(&executable_dir).expect("bin dir");
+        std::fs::create_dir_all(&resource_dir).expect("resource dir");
+        let snapshot = resource_dir.join("ecuador-indicators.snapshot.sqlite");
+        let manifest = resource_dir.join("MANIFEST.json");
+        std::fs::write(&snapshot, b"snapshot").expect("snapshot fixture");
+        std::fs::write(&manifest, b"{}").expect("manifest fixture");
+
+        let snapshot_candidates =
+            super::bundled_resource_candidates(&executable_dir, super::RESOURCE_SNAPSHOT);
+        assert!(
+            snapshot_candidates.contains(&snapshot),
+            "snapshot not found in {snapshot_candidates:?}"
+        );
+
+        let manifest_candidates =
+            super::bundled_resource_candidates(&executable_dir, super::RESOURCE_MANIFEST);
+        assert!(
+            manifest_candidates.contains(&manifest),
+            "manifest not found in {manifest_candidates:?}"
+        );
     }
 }
