@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { AppPorts } from "../../../core/application/ports";
 import { loadExploreModel } from "../../../core/application/use-cases/load-explore-model";
 import type { ExploreModel } from "../../../core/application/use-cases/models";
-import { formatValue, formatYear } from "../../../core/domain/format";
+import { formatTransformedValue, formatYear } from "../../../core/domain/format";
 import {
   type Geography,
   geographyName,
@@ -245,7 +245,7 @@ function ExploreContent({
       value:
         point === undefined
           ? t("common.noData")
-          : formatValue(point.value, model.indicator, locale),
+          : formatTransformedValue(point.value, model.indicator, model.transform, locale),
     });
   };
 

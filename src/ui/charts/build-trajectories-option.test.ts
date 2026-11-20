@@ -89,6 +89,14 @@ describe("buildTrajectoriesOption", () => {
     expect(option.xAxis.data).toEqual(["2000", "2001", "2002", "2003"]);
   });
 
+  it("shows a legend in the live chart so every line can be identified", () => {
+    const option = buildTrajectoriesOption(model(), FALLBACK_LIGHT, "en-US") as unknown as {
+      legend: { show: boolean; data: string[] };
+    };
+    expect(option.legend.show).toBe(true);
+    expect(option.legend.data.length).toBeGreaterThanOrEqual(2);
+  });
+
   it("adds title, legend and attribution in export mode", () => {
     const option = shape(
       buildTrajectoriesOption(model(), FALLBACK_LIGHT, "en-US", { mode: "export" }),

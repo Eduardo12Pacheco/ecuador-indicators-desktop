@@ -3,7 +3,7 @@
  * through `Intl` for the active locale (`en-US` or `es-EC`).
  */
 
-import type { Indicator, Year } from "./model";
+import type { Indicator, Transform, Year } from "./model";
 
 /** Locale identifiers used by the application. */
 export const LOCALES = { en: "en-US", es: "es-EC" } as const;
@@ -77,6 +77,35 @@ export function formatValue(value: number, indicator: Indicator, locale: string)
   }
 }
 
+/**
+ * Formats a value of an Explore series after its transform (S3).
+ *
+ * `level` keeps the indicator's own formatting; `yoy` is always a percentage
+ * and `index` a plain number (base year = 100), because the indicator's unit
+ * no longer applies to transformed values.
+ */
+export function formatTransformedValue(
+  value: number,
+  indicator: Indicator,
+  transform: Transform,
+  locale: string,
+): string {
+  if (transform === "level") {
+    return formatValue(value, indicator, locale);
+  }
+  if (!Number.isFinite(value)) {
+    return "—";
+  }
+  if (transform === "yoy") {
+    return new Intl.NumberFormat(locale, {
+      style: "percent",
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }).format(value / 100);
+  }
+  return fixed(value, locale, 1);
+}
+
 /** Options for {@link formatDelta}. */
 export interface DeltaOptions {
   /** Decimal places; defaults to 1. */
@@ -86,8 +115,9 @@ export interface DeltaOptions {
 }
 
 /**
- * Formats a signed delta. Unlike {@link formatValue}, the sign is always shown
- * so a KPI never relies on color alone.
+ * Formats a signed delta; magnitudes of one million and above use compact
+ * notation, as {@link formatValue} does. Unlike {@link formatValue}, the sign
+ * is always shown so a KPI never relies on color alone.
  */
 export function formatDelta(value: number, locale: string, options: DeltaOptions = {}): string {
   if (!Number.isFinite(value)) {
@@ -95,12 +125,24 @@ export function formatDelta(value: number, locale: string, options: DeltaOptions
   }
   const decimals = options.decimals ?? 1;
   const percent = options.percent ?? false;
+  if (!percent && Math.abs(value) >= COMPACT_THRESHOLD) {
+    return new Intl.NumberFormat(locale, {
+      notation: "compact",
+      maximumFractionDigits: 1,
+      signDisplay: "always",
+    }).format(value);
+  }
   return new Intl.NumberFormat(locale, {
     style: percent ? "percent" : "decimal",
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
     signDisplay: "always",
   }).format(percent ? value / 100 : value);
+}
+
+/** Formats a whole-number count with locale grouping (`11,780`). */
+export function formatCount(value: number, locale: string): string {
+  return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(value);
 }
 
 /** Formats a year without grouping (never `2,019`). */
@@ -111,7 +153,15 @@ export function formatYear(value: Year | number, locale: string): string {
   }).format(value);
 }
 
-/** Formats a retrieval timestamp for the About page. */
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Formats an ISO date or timestamp for the About page.
+ *
+ * A date-only value (such as the WDI `lastupdated` day) names a calendar day,
+ * not an instant, so it is formatted in UTC; in the Americas it would
+ * otherwise render one day early.
+ */
 export function formatDate(iso: string, locale: string): string {
   const parsed = new Date(iso);
   if (Number.isNaN(parsed.getTime())) {
@@ -121,5 +171,6 @@ export function formatDate(iso: string, locale: string): string {
     year: "numeric",
     month: "short",
     day: "numeric",
+    ...(DATE_ONLY.test(iso) ? { timeZone: "UTC" } : {}),
   }).format(parsed);
 }

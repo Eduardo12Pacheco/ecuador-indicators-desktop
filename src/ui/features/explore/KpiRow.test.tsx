@@ -42,6 +42,51 @@ describe("KpiRow", () => {
     expect(screen.getByText("$100")).toBeInTheDocument();
   });
 
+  it("formats year-over-year values as percentages, not in the indicator's currency", () => {
+    renderWithProviders(
+      <KpiRow
+        model={model({
+          transform: "yoy",
+          series: [
+            makeSeries(
+              [
+                [2000, -30],
+                [2001, 5],
+              ],
+              { indicator, geography },
+            ),
+          ],
+        })}
+      />,
+    );
+    expect(screen.getByTestId("kpi-latest")).toHaveTextContent("5.0%");
+    expect(screen.getByTestId("kpi-latest")).not.toHaveTextContent("$");
+    expect(screen.getByText("-30.0%")).toBeInTheDocument();
+  });
+
+  it("formats indexed values as plain numbers", () => {
+    renderWithProviders(
+      <KpiRow
+        model={model({
+          transform: "index",
+          baseYear: 2000 as never,
+          series: [
+            makeSeries(
+              [
+                [2000, 100],
+                [2001, 125.5],
+              ],
+              { indicator, geography },
+            ),
+          ],
+        })}
+      />,
+    );
+    expect(screen.getByTestId("kpi-latest")).toHaveTextContent("125.5");
+    expect(screen.getByTestId("kpi-latest")).not.toHaveTextContent("$");
+    expect(screen.getByText("100.0")).toBeInTheDocument();
+  });
+
   it("marks a rising worse-is-better indicator as worsened", () => {
     const worse = makeIndicator({ higherIs: "worse" });
     renderWithProviders(

@@ -1,5 +1,5 @@
 import type { ExploreModel } from "../../../core/application/use-cases/models";
-import { formatValue, formatYear } from "../../../core/domain/format";
+import { formatTransformedValue, formatYear } from "../../../core/domain/format";
 import { geographyName, indicatorName } from "../../../core/domain/model";
 import { alignSeries } from "../../../core/domain/series";
 import { VisuallyHidden } from "../../design/primitives/VisuallyHidden/VisuallyHidden";
@@ -54,7 +54,7 @@ export function DataTable({ model }: { readonly model: ExploreModel }) {
                         <VisuallyHidden>{t("common.noData")}</VisuallyHidden>
                       </>
                     ) : (
-                      formatValue(value, model.indicator, locale)
+                      formatTransformedValue(value, model.indicator, model.transform, locale)
                     )}
                   </td>
                 );

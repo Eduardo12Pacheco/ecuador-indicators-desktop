@@ -8,7 +8,7 @@
 
 import type { EChartsCoreOption } from "echarts/core";
 import type { ExploreModel } from "../../core/application/use-cases/models";
-import { formatValue, formatYear } from "../../core/domain/format";
+import { formatTransformedValue, formatYear } from "../../core/domain/format";
 import {
   geographyName,
   indicatorName,
@@ -134,11 +134,20 @@ export function buildChartOption(
             left: 16,
             textStyle: { color: theme.textMuted, fontFamily: theme.fontUi, fontSize: 12 },
           }
-        : { show: false, data: names },
+        : {
+            // Colour is never the only cue (D9), but the dash/symbol key must be visible.
+            show: true,
+            data: names,
+            top: 0,
+            right: 16,
+            itemWidth: 24,
+            itemHeight: 8,
+            textStyle: { color: theme.textMuted, fontFamily: theme.fontUi, fontSize: 12 },
+          },
     grid: {
       left: 8,
       right: 16,
-      top: mode === "export" ? 88 : 16,
+      top: mode === "export" ? 88 : 40,
       bottom: mode === "export" ? 64 : 12,
       containLabel: true,
     },
@@ -148,7 +157,12 @@ export function buildChartOption(
       borderColor: theme.border,
       textStyle: { color: theme.text, fontFamily: theme.fontUi, fontSize: 12 },
       valueFormatter: (value: unknown) =>
-        formatValue(typeof value === "number" ? value : Number(value), model.indicator, locale),
+        formatTransformedValue(
+          typeof value === "number" ? value : Number(value),
+          model.indicator,
+          model.transform,
+          locale,
+        ),
     },
     xAxis: {
       type: "category",
@@ -171,7 +185,8 @@ export function buildChartOption(
         color: theme.textMuted,
         fontFamily: theme.fontUi,
         fontSize: 12,
-        formatter: (value: number) => formatValue(value, model.indicator, locale),
+        formatter: (value: number) =>
+          formatTransformedValue(value, model.indicator, model.transform, locale),
       },
     },
     series,

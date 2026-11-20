@@ -1,7 +1,7 @@
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 
 import type { ExploreModel } from "../../../core/application/use-cases/models";
-import { formatDelta, formatValue, formatYear } from "../../../core/domain/format";
+import { formatDelta, formatTransformedValue, formatYear } from "../../../core/domain/format";
 import { indicatorName } from "../../../core/domain/model";
 import { type SeriesSummary, summarize } from "../../../core/domain/stats";
 import { Card } from "../../design/primitives/Card/Card";
@@ -50,7 +50,8 @@ export function KpiRow({ model }: { readonly model: ExploreModel }) {
         ? "up"
         : "down";
   const change = summary.change;
-  const valueFor = (value: number) => formatValue(value, model.indicator, locale);
+  const valueFor = (value: number) =>
+    formatTransformedValue(value, model.indicator, model.transform, locale);
 
   return (
     <section

@@ -140,6 +140,35 @@ describe("buildChartOption", () => {
     expect(series(indexOption)[0]?.lineStyle.type).toBe(series(levelOption)[0]?.lineStyle.type);
   });
 
+  it("shows a legend naming every series in the live chart", () => {
+    const option = buildChartOption(model(), FALLBACK_LIGHT, "en-US") as unknown as {
+      legend: { show: boolean; data: string[] };
+    };
+    expect(option.legend.show).toBe(true);
+    expect(option.legend.data).toEqual(["Ecuador", "Colombia"]);
+  });
+
+  it("formats the axis and tooltip for the transform, not the indicator's currency", () => {
+    const axisOf = (option: EChartsCoreOption) =>
+      (option as unknown as { yAxis: { axisLabel: { formatter: (value: number) => string } } })
+        .yAxis.axisLabel.formatter;
+    const tooltipOf = (option: EChartsCoreOption) =>
+      (option as unknown as { tooltip: { valueFormatter: (value: unknown) => string } }).tooltip
+        .valueFormatter;
+    const level = buildChartOption(model(), FALLBACK_LIGHT, "en-US");
+    const yoy = buildChartOption(model({ transform: "yoy" }), FALLBACK_LIGHT, "en-US");
+    const index = buildChartOption(
+      model({ transform: "index", baseYear: year(2000) }),
+      FALLBACK_LIGHT,
+      "en-US",
+    );
+    expect(axisOf(level)(30)).toBe("$30");
+    expect(axisOf(yoy)(30)).toBe("30.0%");
+    expect(tooltipOf(yoy)(5)).toBe("5.0%");
+    expect(axisOf(index)(125)).toBe("125.0");
+    expect(tooltipOf(index)(100)).toBe("100.0");
+  });
+
   it("is aria-enabled in both modes and adds export title and attribution", () => {
     const view = buildChartOption(model(), FALLBACK_LIGHT, "en-US");
     expect((view as unknown as { aria: { enabled: boolean } }).aria.enabled).toBe(true);

@@ -100,11 +100,20 @@ export function buildTrajectoriesOption(
             left: 16,
             textStyle: { color: theme.textMuted, fontFamily: theme.fontUi, fontSize: 12 },
           }
-        : { show: false, data: names },
+        : {
+            // Colour is never the only cue (D9), but the dash/symbol key must be visible.
+            show: true,
+            data: names,
+            top: 0,
+            right: 16,
+            itemWidth: 24,
+            itemHeight: 8,
+            textStyle: { color: theme.textMuted, fontFamily: theme.fontUi, fontSize: 12 },
+          },
     grid: {
       left: 8,
       right: 16,
-      top: mode === "export" ? 88 : 16,
+      top: mode === "export" ? 88 : 40,
       bottom: mode === "export" ? 64 : 12,
       containLabel: true,
     },
