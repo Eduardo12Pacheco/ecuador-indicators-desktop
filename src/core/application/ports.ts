@@ -52,9 +52,26 @@ export interface ExportRequest {
   readonly content: string | Uint8Array;
 }
 
+/** Marker returned by adapters when the user cancels the native save dialog. */
+export const SAVE_CANCELLED = "cancelled";
+
+/** Marker returned by the browser adapter after starting a download. */
+export const DOWNLOAD_STARTED = "download";
+
 /** Native save boundary. Returns the saved path or a download marker. */
 export interface ExportGateway {
   save(request: ExportRequest): Promise<Result<string>>;
+}
+
+/** Native file picker used by the custom-snapshot setting (S14). */
+export interface SnapshotPicker {
+  /** Returns the chosen path, or `null` when the user cancels. */
+  pickSnapshot(): Promise<Result<string | null>>;
+}
+
+/** Opens external URLs in the system browser (S13, S32). */
+export interface ExternalLinkGateway {
+  open(url: string): Promise<Result<void>>;
 }
 
 /** Opt-in update check. */
@@ -75,4 +92,6 @@ export interface AppPorts {
   readonly export: ExportGateway;
   readonly updates: UpdateGateway;
   readonly appInfo: AppInfoGateway;
+  readonly snapshotPicker: SnapshotPicker;
+  readonly externalLinks: ExternalLinkGateway;
 }

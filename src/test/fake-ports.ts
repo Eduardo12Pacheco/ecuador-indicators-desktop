@@ -53,6 +53,12 @@ export function createFakePorts(overrides: Partial<AppPorts> = {}): AppPorts {
     appInfo: {
       get: () => resolved(makeAppInfo()),
     },
+    snapshotPicker: {
+      pickSnapshot: () => resolved(null),
+    },
+    externalLinks: {
+      open: () => resolved(undefined),
+    },
   };
   return { ...defaults, ...overrides };
 }

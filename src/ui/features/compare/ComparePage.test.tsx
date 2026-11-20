@@ -178,6 +178,8 @@ function ports(overrides: Partial<AppPorts> = {}): AppPorts {
     appInfo: {
       get: async () => ok({ version: "0.1.0", platform: "linux", dataDir: "", logDir: "" }),
     },
+    snapshotPicker: { pickSnapshot: async () => ok(null) },
+    externalLinks: { open: async () => ok(undefined) },
     ...overrides,
   };
 }

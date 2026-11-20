@@ -6,15 +6,7 @@
  * the Retry path can be exercised deterministically.
  */
 
-import type {
-  AppInfoGateway,
-  AppPorts,
-  DatasetRepository,
-  ExportGateway,
-  SettingsRepository,
-  UpdateGateway,
-  ViewRepository,
-} from "../../core/application/ports";
+import type { AppPorts, DatasetRepository, ViewRepository } from "../../core/application/ports";
 import { appError } from "../../core/domain/errors";
 import type { Catalog, NewView, Observation, SavedView } from "../../core/domain/model";
 import { err, type Result } from "../../core/domain/result";
@@ -115,11 +107,9 @@ export function withFaultInjection(
   ports: AppPorts,
   storage: FaultStorage | null = defaultStorage(),
 ): AppPorts {
-  const dataset = new FaultInjectingDatasetRepository(ports.dataset, storage);
-  const views = new FaultInjectingViewRepository(ports.views, storage);
-  const settings: SettingsRepository = ports.settings;
-  const exportGateway: ExportGateway = ports.export;
-  const updates: UpdateGateway = ports.updates;
-  const appInfo: AppInfoGateway = ports.appInfo;
-  return { dataset, views, settings, export: exportGateway, updates, appInfo };
+  return {
+    ...ports,
+    dataset: new FaultInjectingDatasetRepository(ports.dataset, storage),
+    views: new FaultInjectingViewRepository(ports.views, storage),
+  };
 }

@@ -7,8 +7,10 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import type { z } from "zod";
-import type { AppPorts, ExportRequest } from "../../core/application/ports";
+import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { z } from "zod";
+import { type AppPorts, type ExportRequest, SAVE_CANCELLED } from "../../core/application/ports";
 import {
   appInfoSchema,
   catalogSchema,
@@ -35,6 +37,35 @@ import {
 /** The minimal invoke surface, injectable for tests. */
 export type InvokeFn = (command: string, args?: Record<string, unknown>) => Promise<unknown>;
 
+/** Save dialog options used by the native adapter. */
+export interface SaveDialogOptions {
+  readonly defaultPath?: string;
+  readonly filters?: readonly { readonly name: string; readonly extensions: readonly string[] }[];
+}
+
+/** Open dialog options used by the native adapter. */
+export interface OpenDialogOptions {
+  readonly multiple?: boolean;
+  readonly directory?: boolean;
+  readonly filters?: readonly { readonly name: string; readonly extensions: readonly string[] }[];
+}
+
+/** Native OS integrations, injectable so tests never touch a real dialog. */
+export interface TauriNativeDeps {
+  save(options: SaveDialogOptions): Promise<string | null>;
+  open(options: OpenDialogOptions): Promise<string | null>;
+  openUrl(url: string): Promise<void>;
+}
+
+const nativeDeps: TauriNativeDeps = {
+  save: (options) => saveDialog(options as never) as Promise<string | null>,
+  open: async (options) => {
+    const chosen = await openDialog(options as never);
+    return typeof chosen === "string" ? chosen : null;
+  },
+  openUrl: (url) => openUrl(url),
+};
+
 /** Maps unknown thrown values from `invoke` to the typed error model. */
 export function toAppError(error: unknown): AppError {
   if (isAppError(error)) {
@@ -59,8 +90,12 @@ export function toAppError(error: unknown): AppError {
  * Creates the Tauri-backed ports.
  *
  * @param invokeFn - the IPC function; defaults to Tauri's `invoke`.
+ * @param deps - native dialog/opener bindings; defaults to the plugins.
  */
-export function createTauriGateway(invokeFn: InvokeFn = invoke): AppPorts {
+export function createTauriGateway(
+  invokeFn: InvokeFn = invoke,
+  deps: TauriNativeDeps = nativeDeps,
+): AppPorts {
   async function call<T>(
     command: string,
     args: Record<string, unknown> | undefined,
@@ -160,16 +195,27 @@ export function createTauriGateway(invokeFn: InvokeFn = invoke): AppPorts {
       },
     },
     export: {
-      async save(_request: ExportRequest) {
-        // The native save dialog is wired in T10; the Rust command already
-        // validates extensions and writes atomically.
-        return err(
-          appError(
-            "INVALID_INPUT",
-            "the native save dialog is not available yet",
-            "export saving is completed in the export task",
-          ),
-        );
+      async save(request: ExportRequest) {
+        const extension = request.kind;
+        let path: string | null;
+        try {
+          path = await deps.save({
+            defaultPath: request.suggestedName,
+            filters: [{ name: extension.toUpperCase(), extensions: [extension] }],
+          });
+        } catch (error) {
+          return err(
+            appError("EXPORT_REJECTED", "the save dialog could not be opened", String(error)),
+          );
+        }
+        if (path === null) {
+          return ok(SAVE_CANCELLED);
+        }
+        const content =
+          typeof request.content === "string"
+            ? Array.from(new TextEncoder().encode(request.content))
+            : Array.from(request.content);
+        return call("export_save", { path, content }, z.string());
       },
     },
     updates: {
@@ -182,6 +228,41 @@ export function createTauriGateway(invokeFn: InvokeFn = invoke): AppPorts {
       async get() {
         const result = await call("app_info", undefined, appInfoSchema);
         return result.ok ? ok(mapAppInfo(result.value)) : result;
+      },
+    },
+    snapshotPicker: {
+      async pickSnapshot() {
+        try {
+          const path = await deps.open({
+            multiple: false,
+            directory: false,
+            filters: [{ name: "Snapshot", extensions: ["sqlite", "db"] }],
+          });
+          return ok(path);
+        } catch (error) {
+          return err(
+            appError("INTERNAL", "the snapshot dialog could not be opened", String(error)),
+          );
+        }
+      },
+    },
+    externalLinks: {
+      async open(url: string) {
+        let parsed: URL;
+        try {
+          parsed = new URL(url);
+        } catch {
+          return err(appError("INVALID_INPUT", `not a valid URL: ${url}`));
+        }
+        if (parsed.protocol !== "https:") {
+          return err(appError("INVALID_INPUT", `only https links are opened, got ${parsed.href}`));
+        }
+        try {
+          await deps.openUrl(url);
+          return ok(undefined);
+        } catch (error) {
+          return err(appError("INTERNAL", "the system browser could not be opened", String(error)));
+        }
       },
     },
   };

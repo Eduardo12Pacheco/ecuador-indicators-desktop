@@ -132,6 +132,8 @@ describe("fault injection", () => {
       export: { save: () => okAsync("saved") },
       updates: { check: () => okAsync({ kind: "disabled", current: "0.1.0" }) },
       appInfo: { get: () => okAsync(makeAppInfo()) },
+      snapshotPicker: { pickSnapshot: () => okAsync(null) },
+      externalLinks: { open: () => okAsync(undefined) },
     };
     const wrapped = withFaultInjection(ports, fakeStorage("views"));
     expect((await wrapped.views.list()).ok).toBe(false);

@@ -163,19 +163,6 @@ describe("Tauri gateway", () => {
     });
   });
 
-  it("reports that native export saving is not wired yet", async () => {
-    const { gateway } = harness({});
-    const result = await gateway.export.save({
-      suggestedName: "x.csv",
-      kind: "csv",
-      content: "a",
-    });
-    expect(result).toEqual({
-      ok: false,
-      error: expect.objectContaining({ code: "INVALID_INPUT" }),
-    });
-  });
-
   it("maps typed ErrorDto failures and unknown thrown values", async () => {
     const gateway = createTauriGateway(async () => {
       throw { code: "SNAPSHOT_INVALID", message: "bad file" };
@@ -221,3 +208,133 @@ describe("Tauri gateway default construction", () => {
     expect(gateway.appInfo).toBeDefined();
   });
 });
+
+describe("Tauri native dialogs", () => {
+  interface DialogHarness {
+    readonly gateway: ReturnType<typeof createTauriGateway>;
+    readonly calls: Array<{ command: string; args: Record<string, unknown> | undefined }>;
+    readonly saved: Array<{ defaultPath?: string; filters?: unknown }>;
+    readonly opened: Array<{ multiple?: boolean; filters?: unknown }>;
+    readonly openedUrls: string[];
+  }
+
+  function dialogHarness(
+    options: {
+      readonly saveResult?: string | null;
+      readonly openResult?: string | null;
+      readonly saveError?: Error;
+      readonly openUrlError?: Error;
+    } = {},
+  ): DialogHarness {
+    const calls: DialogHarness["calls"] = [];
+    const saved: DialogHarness["saved"] = [];
+    const opened: DialogHarness["opened"] = [];
+    const openedUrls: string[] = [];
+    const gateway = createTauriGateway(
+      async (command, args) => {
+        calls.push({ command, args });
+        if (command !== "export_save") {
+          throw new Error(`unexpected command ${command}`);
+        }
+        return args?.path;
+      },
+      {
+        async save(dialogOptions) {
+          saved.push(dialogOptions);
+          if (options.saveError !== undefined) {
+            throw options.saveError;
+          }
+          return options.saveResult === undefined ? "/home/eduardo/out.csv" : options.saveResult;
+        },
+        async open(dialogOptions) {
+          opened.push(dialogOptions);
+          return options.openResult === undefined ? "/tmp/custom.sqlite" : options.openResult;
+        },
+        async openUrl(url) {
+          if (options.openUrlError !== undefined) {
+            throw options.openUrlError;
+          }
+          openedUrls.push(url);
+        },
+      },
+    );
+    return { gateway, calls, saved, opened, openedUrls };
+  }
+
+  it("saves CSV through the native dialog and the export command", async () => {
+    const harness = dialogHarness();
+    const result = await harness.gateway.export.save({
+      suggestedName: "ecuador-GDP-2000-2020.csv",
+      kind: "csv",
+      content: "a,b\r\n1,2\r\n",
+    });
+    expect(result).toEqual({ ok: true, value: "/home/eduardo/out.csv" });
+    expect(harness.saved[0]?.defaultPath).toBe("ecuador-GDP-2000-2020.csv");
+    expect(harness.calls).toHaveLength(1);
+    expect(harness.calls[0]?.command).toBe("export_save");
+    expect(
+      new TextDecoder().decode(new Uint8Array(harness.calls[0]?.args?.content as number[])),
+    ).toBe("a,b\r\n1,2\r\n");
+  });
+
+  it("passes PNG bytes unchanged and cancels silently", async () => {
+    const bytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+    const first = dialogHarness();
+    await first.gateway.export.save({ suggestedName: "chart.png", kind: "png", content: bytes });
+    expect(first.calls[0]?.args?.content).toEqual([0x89, 0x50, 0x4e, 0x47]);
+
+    const cancelled = dialogHarness({ saveResult: null });
+    const result = await cancelled.gateway.export.save({
+      suggestedName: "chart.png",
+      kind: "png",
+      content: bytes,
+    });
+    expect(result).toEqual({ ok: true, value: "cancelled" });
+    expect(cancelled.calls).toEqual([]);
+  });
+
+  it("maps a failing save dialog to a typed export error", async () => {
+    const harness = dialogHarness({ saveError: new Error("dialog closed") });
+    const result = await harness.gateway.export.save({
+      suggestedName: "chart.png",
+      kind: "png",
+      content: bytes(),
+    });
+    expect(result).toEqual({
+      ok: false,
+      error: expect.objectContaining({ code: "EXPORT_REJECTED" }),
+    });
+  });
+
+  it("picks a snapshot path and treats cancel as null", async () => {
+    const chosen = dialogHarness();
+    expect(await chosen.gateway.snapshotPicker.pickSnapshot()).toEqual({
+      ok: true,
+      value: "/tmp/custom.sqlite",
+    });
+    expect(chosen.opened[0]?.filters).toEqual([{ name: "Snapshot", extensions: ["sqlite", "db"] }]);
+
+    const cancelled = dialogHarness({ openResult: null });
+    expect(await cancelled.gateway.snapshotPicker.pickSnapshot()).toEqual({
+      ok: true,
+      value: null,
+    });
+  });
+
+  it("opens external links through the opener plugin and rejects non-https URLs", async () => {
+    const harness = dialogHarness();
+    expect(
+      await harness.gateway.externalLinks.open("https://creativecommons.org/licenses/by/4.0/"),
+    ).toEqual({ ok: true, value: undefined });
+    expect(harness.openedUrls).toEqual(["https://creativecommons.org/licenses/by/4.0/"]);
+    expect(await harness.gateway.externalLinks.open("file:///etc/passwd")).toEqual({
+      ok: false,
+      error: expect.objectContaining({ code: "INVALID_INPUT" }),
+    });
+    expect(harness.openedUrls).toHaveLength(1);
+  });
+});
+
+function bytes(): Uint8Array {
+  return new Uint8Array([1]);
+}

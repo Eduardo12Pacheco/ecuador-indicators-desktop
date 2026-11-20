@@ -396,5 +396,20 @@ export async function createMemoryGateway(options: MemoryGatewayOptions = {}): P
         return ok(appInfo);
       },
     },
+    snapshotPicker: {
+      async pickSnapshot() {
+        // Browsers cannot read arbitrary file paths; the desktop dialog does.
+        return ok(null);
+      },
+    },
+    externalLinks: {
+      async open(url) {
+        if (typeof window === "undefined") {
+          return err(appError("INVALID_INPUT", "no browser window is available"));
+        }
+        window.open(url, "_blank", "noopener");
+        return ok(undefined);
+      },
+    },
   };
 }
