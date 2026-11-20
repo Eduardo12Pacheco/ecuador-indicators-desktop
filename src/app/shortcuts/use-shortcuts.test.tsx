@@ -55,6 +55,8 @@ function spies(overrides: Partial<CommandContext> = {}): Spies {
       toggleTheme,
       setLanguage,
       stepIndicator,
+      canSaveView: false,
+      openSaveView: () => undefined,
       ...overrides,
     },
   };

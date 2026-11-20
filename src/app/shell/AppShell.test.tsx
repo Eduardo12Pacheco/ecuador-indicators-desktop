@@ -158,6 +158,15 @@ describe("AppShell global shortcuts", () => {
     expect(screen.getByTestId("location")).toHaveTextContent("/explore/FP.CPI.TOTL.ZG?g=ECU%2CCOL");
   });
 
+  it("opens the save-view dialog with Control+S", async () => {
+    renderShell("/explore/NY.GDP.MKTP.CD?g=ECU%2CCOL");
+    await screen.findByRole("heading", { name: "GDP (current US$)", level: 1 });
+    await userEvent.keyboard("{Control>}s{/Control}");
+    expect(await screen.findByRole("dialog", { name: "Save view" })).toBeInTheDocument();
+    const input = await screen.findByLabelText("View name");
+    await waitFor(() => expect(input).toHaveValue("GDP (current US$) · Ecuador, Colombia"));
+  });
+
   it("navigates with the g chord", async () => {
     renderShell("/settings");
     await screen.findByRole("heading", { name: "Settings" });

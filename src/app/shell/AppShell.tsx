@@ -1,5 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
+import { listViews } from "../../core/application/use-cases/views";
 import { useTheme } from "../../ui/design/ThemeProvider";
 import {
   CommandPalette,
@@ -8,6 +10,8 @@ import {
 } from "../../ui/features/palette/CommandPalette";
 import { viewSpecPath } from "../../ui/features/palette/commands";
 import { type ShortcutEntry, ShortcutsDialog } from "../../ui/features/palette/ShortcutsDialog";
+import { SaveViewDialog } from "../../ui/features/views/SaveViewDialog";
+import { locationToViewSpec } from "../../ui/features/views/view-location";
 import { useT } from "../../ui/i18n/useT";
 import { usePorts } from "../../ui/ports-context";
 import {
@@ -42,6 +46,7 @@ export function AppShell() {
   const { toggle } = useTheme();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [saveViewOpen, setSaveViewOpen] = useState(false);
   const platform = useMemo(
     () => detectPlatform(typeof navigator === "undefined" ? "" : navigator.userAgent),
     [],
@@ -85,6 +90,26 @@ export function AppShell() {
     [location.pathname, location.search, navigate, ports.dataset],
   );
 
+  const currentSpec = useMemo(
+    () => locationToViewSpec({ pathname: location.pathname, search: location.search }),
+    [location.pathname, location.search],
+  );
+  const requestedViewId = useMemo(
+    () => new URLSearchParams(location.search).get("view"),
+    [location.search],
+  );
+  const viewsQuery = useQuery({
+    queryKey: ["views", "list"],
+    queryFn: () => listViews(ports.views),
+    enabled: saveViewOpen || requestedViewId !== null,
+  });
+  const existingView = useMemo(() => {
+    if (requestedViewId === null || viewsQuery.data?.ok !== true) {
+      return null;
+    }
+    return viewsQuery.data.value.find((view) => view.id === requestedViewId) ?? null;
+  }, [requestedViewId, viewsQuery.data]);
+
   const context = useMemo<CommandContext>(
     () => ({
       platform,
@@ -96,8 +121,10 @@ export function AppShell() {
       toggleTheme: toggle,
       setLanguage: setLang,
       stepIndicator,
+      canSaveView: currentSpec !== null,
+      openSaveView: () => setSaveViewOpen(true),
     }),
-    [goExplore, location.pathname, navigate, platform, setLang, stepIndicator, toggle],
+    [currentSpec, goExplore, location.pathname, navigate, platform, setLang, stepIndicator, toggle],
   );
 
   useShortcuts({ context });
@@ -189,6 +216,12 @@ export function AppShell() {
         open={shortcutsOpen}
         onOpenChange={setShortcutsOpen}
         entries={shortcutEntries}
+      />
+      <SaveViewDialog
+        open={saveViewOpen}
+        onOpenChange={setSaveViewOpen}
+        spec={currentSpec}
+        existing={existingView}
       />
     </div>
   );

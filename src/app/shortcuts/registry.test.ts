@@ -22,6 +22,8 @@ function context(overrides: Partial<CommandContext> = {}): CommandContext {
     toggleTheme: () => undefined,
     setLanguage: () => undefined,
     stepIndicator: () => undefined,
+    canSaveView: false,
+    openSaveView: () => undefined,
     ...overrides,
   };
 }
@@ -50,6 +52,15 @@ describe("command registry", () => {
   it("finds commands by id", () => {
     expect(commandById("open-palette")?.shortcut).toBe("Mod+K");
     expect(commandById("missing")).toBeUndefined();
+  });
+
+  it("offers saving only on savable routes", () => {
+    expect(
+      availableCommands(context({ canSaveView: true })).map((command) => command.id),
+    ).toContain("save-view");
+    expect(
+      availableCommands(context({ canSaveView: false })).map((command) => command.id),
+    ).not.toContain("save-view");
   });
 
   it("hides indicator stepping outside Explore", () => {

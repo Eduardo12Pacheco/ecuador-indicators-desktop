@@ -11,7 +11,7 @@ import type { MessageKey } from "../../ui/i18n/en";
 export type Platform = "mac" | "other";
 
 /** Where a command appears in the command palette. */
-export type PaletteGroup = "navigation" | "appearance" | "language" | "help";
+export type PaletteGroup = "navigation" | "appearance" | "language" | "help" | "actions";
 
 /** Runtime dependencies a command may use when it runs. */
 export interface CommandContext {
@@ -24,6 +24,8 @@ export interface CommandContext {
   readonly toggleTheme: () => void;
   readonly setLanguage: (language: "en" | "es") => void;
   readonly stepIndicator: (delta: 1 | -1) => void;
+  readonly canSaveView: boolean;
+  readonly openSaveView: () => void;
 }
 
 /** A named, translated action with an optional keyboard shortcut. */
@@ -125,6 +127,15 @@ export const COMMANDS: readonly Command[] = [
     shortcut: "?",
     paletteGroup: "help",
     run: (context) => context.openShortcuts(),
+  },
+  {
+    id: "save-view",
+    titleKey: "command.saveView",
+    keywords: ["save", "view", "bookmark", "guardar", "vista"],
+    shortcut: "Mod+S",
+    paletteGroup: "actions",
+    when: (context) => context.canSaveView,
+    run: (context) => context.openSaveView(),
   },
   {
     id: "previous-indicator",
