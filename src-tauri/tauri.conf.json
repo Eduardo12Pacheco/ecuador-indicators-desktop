@@ -10,21 +10,46 @@
     "beforeBuildCommand": "npm run build"
   },
   "app": {
-    "windows": [
-      {
-        "label": "main",
-        "title": "Ecuador Indicators",
-        "width": 1280,
-        "height": 800,
-        "resizable": true,
-        "center": true
-      }
-    ],
+    "windows": [],
     "security": {
-      "csp": null
+      "csp": {
+        "default-src": "'self'",
+        "connect-src": "ipc: http://ipc.localhost",
+        "img-src": "'self' data: blob:",
+        "font-src": "'self'",
+        "style-src": "'self' 'unsafe-inline'",
+        "script-src": "'self'"
+      }
     }
   },
   "bundle": {
-    "active": false
+    "active": true,
+    "targets": ["nsis", "msi", "dmg", "app", "deb", "rpm", "appimage"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": {
+      "../data/snapshot/ecuador-indicators.snapshot.sqlite": "data/ecuador-indicators.snapshot.sqlite",
+      "../data/MANIFEST.json": "data/MANIFEST.json"
+    },
+    "category": "Education",
+    "shortDescription": "Offline explorer for Ecuadorian economic and social indicators",
+    "longDescription": "Ecuador Indicators is an offline-first desktop application for exploring, comparing, searching and exporting Ecuadorian economic and social indicators from a bundled, CC BY 4.0 World Bank WDI snapshot.",
+    "macOS": {
+      "signingIdentity": "-",
+      "minimumSystemVersion": "11.0"
+    },
+    "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      },
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    }
   }
 }

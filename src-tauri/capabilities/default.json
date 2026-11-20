@@ -1,7 +1,21 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Minimal capability set for the main window.",
+  "description": "Minimal capability set for the main window: core, save/open dialogs, window state and an allowlisted external browser.",
   "windows": ["main"],
-  "permissions": ["core:default"]
+  "permissions": [
+    "core:default",
+    "dialog:allow-open",
+    "dialog:allow-save",
+    "window-state:default",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        { "url": "https://github.com/Eduardo12Pacheco/*" },
+        { "url": "https://datacatalog.worldbank.org/*" },
+        { "url": "https://creativecommons.org/licenses/by/4.0/*" },
+        { "url": "https://api.worldbank.org/*" }
+      ]
+    }
+  ]
 }
