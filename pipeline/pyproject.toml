@@ -10,7 +10,13 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "Eduardo Pacheco" }]
-dependencies = ["typer>=0.29.2"]
+dependencies = [
+  "httpx>=0.28.1",
+  "pydantic>=2.14.4",
+  "pydantic-settings>=2.16.3",
+  "structlog>=26.1.0",
+  "typer>=0.29.2",
+]
 
 [dependency-groups]
 dev = [
@@ -30,6 +36,26 @@ ecuador-data = "ecuador_data.cli:app"
 [tool.uv]
 package = true
 
+[tool.importlinter]
+root_packages = ["ecuador_data"]
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Hexagonal layers (adapters > application > ports > domain)"
+type = "layers"
+layers = [
+  "ecuador_data.adapters",
+  "ecuador_data.application",
+  "ecuador_data.ports",
+  "ecuador_data.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "Domain does not import infrastructure libraries"
+type = "forbidden"
+source_modules = ["ecuador_data.domain"]
+forbidden_modules = ["httpx", "duckdb", "sqlite3"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/ecuador_data"]
 
@@ -42,7 +68,8 @@ src = ["src", "tests"]
 select = ["E", "F", "I", "UP", "B", "SIM", "PL", "RUF", "S"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101"]
+"tests/**" = ["S101", "PLR2004", "S311", "RUF043"]
+"src/ecuador_data/cli.py" = ["B008"]
 
 [tool.mypy]
 python_version = "3.12"
