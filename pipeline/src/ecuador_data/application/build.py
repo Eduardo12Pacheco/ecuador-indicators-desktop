@@ -43,7 +43,7 @@ class BuildUseCase:
         self._writer = writer
         self._catalog = catalog
 
-    def execute(self, out: Path | None = None) -> BuildResult:
+    def execute(self, out: Path | None = None, *, update_manifest: bool = True) -> BuildResult:
         manifest = self._store.read_manifest()
         self._store.verify_raw_files(manifest)
 
@@ -73,16 +73,22 @@ class BuildUseCase:
                     code=indicator.code,
                     topic_id=indicator.topic_id,
                     name_en=self._required_text(english, "name", indicator.code),
-                    name_es=self._required_text(spanish, "name", indicator.code),
+                    name_es=self._spanish_text(
+                        spanish, "name", indicator.code, indicator.fallback_name_es
+                    ),
                     description_en=str(english.get("sourceNote", "") or ""),
-                    description_es=str(spanish.get("sourceNote", "") or ""),
+                    description_es=self._optional_spanish_text(
+                        spanish, "sourceNote", indicator.fallback_description_es
+                    ),
                     unit_en=indicator.unit_en,
                     unit_es=indicator.unit_es,
                     value_kind=indicator.value_kind,
                     decimals=indicator.decimals,
                     higher_is=indicator.higher_is,
                     source_org_en=str(english.get("sourceOrganization", "") or ""),
-                    source_org_es=str(spanish.get("sourceOrganization", "") or ""),
+                    source_org_es=self._optional_spanish_text(
+                        spanish, "sourceOrganization", indicator.fallback_source_org_es
+                    ),
                     sort_order=indicator.sort_order,
                 )
             )
@@ -134,7 +140,7 @@ class BuildUseCase:
         counts = dataset.counts()
 
         canonical = (self._store.data_dir / DEFAULT_SNAPSHOT_RELATIVE).resolve()
-        if target.resolve() == canonical:
+        if update_manifest and target.resolve() == canonical:
             snapshot_meta = SnapshotMeta(
                 path=DEFAULT_SNAPSHOT_RELATIVE,
                 schema_version=1,
@@ -193,6 +199,22 @@ class BuildUseCase:
         if not isinstance(value, str) or not value:
             raise IntegrityError(f"raw metadata for {label} has no {key}")
         return value
+
+    @staticmethod
+    def _spanish_text(entry: dict[str, Any], key: str, label: str, fallback: str | None) -> str:
+        value = entry.get(key)
+        if isinstance(value, str) and value:
+            return value
+        if fallback:
+            return fallback
+        raise IntegrityError(f"raw metadata for {label} has no {key}")
+
+    @staticmethod
+    def _optional_spanish_text(entry: dict[str, Any], key: str, fallback: str | None) -> str:
+        value = entry.get(key)
+        if isinstance(value, str) and value:
+            return value
+        return fallback or ""
 
     # -- observations -------------------------------------------------------
     def _observations(self, codes: list[str], known_geographies: set[str]) -> list[Observation]:

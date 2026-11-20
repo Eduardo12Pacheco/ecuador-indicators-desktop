@@ -10,7 +10,7 @@ import pytest
 from ecuador_data.adapters.raw_cache import FileRawStore
 from ecuador_data.adapters.sqlite_snapshot import SqliteSnapshotWriter
 from ecuador_data.application.build import BuildResult, BuildUseCase
-from ecuador_data.domain.catalog import load_catalog
+from ecuador_data.domain.catalog import Catalog, load_catalog
 from ecuador_data.domain.errors import IntegrityError, ManifestError
 from ecuador_data.domain.models import RawFileRecord
 
@@ -75,6 +75,52 @@ def test_build_updates_the_manifest_only_for_the_canonical_snapshot(mini_copy: P
     other = _usecase(store).execute(mini_copy / "elsewhere.sqlite")
     assert store.read_manifest().snapshot.logical_sha256 == result.logical_sha256
     assert Path(other.path).is_file()
+
+
+def test_build_uses_the_curated_spanish_fallback(mini_copy: Path, tmp_path: Path) -> None:
+    store = FileRawStore(mini_copy)
+    relative = "raw/worldbank/indicators.es.json"
+    payload = store.read_json(relative)
+    assert isinstance(payload, list)
+    for entry in payload:
+        if entry.get("id") == "NY.GDP.MKTP.CD":
+            entry["name"] = ""
+            entry["sourceNote"] = ""
+            entry["sourceOrganization"] = ""
+    _rewrite(store, relative, payload)
+
+    base = load_catalog()
+    indicator = next(item for item in base.indicators if item.code == "NY.GDP.MKTP.CD").model_copy(
+        update={
+            "fallback_name_es": "PIB de respaldo",
+            "fallback_description_es": "Descripción de respaldo",
+            "fallback_source_org_es": "Fuente de respaldo",
+        }
+    )
+    catalog = Catalog(topics=base.topics, geographies=base.geographies, indicators=(indicator,))
+    result = BuildUseCase(store=store, writer=SqliteSnapshotWriter(), catalog=catalog).execute(
+        tmp_path / "fallback.sqlite"
+    )
+    read = SqliteSnapshotWriter().read(Path(result.path))
+    built = read.dataset.indicators[0]
+    assert built.name_es == "PIB de respaldo"
+    assert built.description_es == "Descripción de respaldo"
+    assert built.source_org_es == "Fuente de respaldo"
+
+
+def test_build_rejects_an_empty_spanish_name_without_a_fallback(
+    mini_copy: Path, tmp_path: Path
+) -> None:
+    store = FileRawStore(mini_copy)
+    relative = "raw/worldbank/indicators.es.json"
+    payload = store.read_json(relative)
+    assert isinstance(payload, list)
+    for entry in payload:
+        if entry.get("id") == "NY.GDP.MKTP.CD":
+            entry["name"] = ""
+    _rewrite(store, relative, payload)
+    with pytest.raises(IntegrityError, match="has no name"):
+        _usecase(store).execute(tmp_path / "out.sqlite")
 
 
 def test_build_requires_a_manifest(mini_copy: Path, tmp_path: Path) -> None:

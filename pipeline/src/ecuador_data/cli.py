@@ -3,19 +3,24 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from enum import StrEnum
 from pathlib import Path
 
 import typer
 
 from ecuador_data import __version__
 from ecuador_data.adapters.clock import SystemClock
+from ecuador_data.adapters.json_export import JsonSnapshotExporter
+from ecuador_data.adapters.lakehouse_duckdb import LakehouseDuckDbSource
 from ecuador_data.adapters.raw_cache import FileRawStore
 from ecuador_data.adapters.sqlite_snapshot import SqliteSnapshotWriter
 from ecuador_data.adapters.worldbank_api import WorldBankApiSource
 from ecuador_data.application.build import BuildUseCase
+from ecuador_data.application.export_json import ExportJsonUseCase
+from ecuador_data.application.import_lakehouse import ImportLakehouseUseCase
 from ecuador_data.application.refresh import RefreshUseCase
 from ecuador_data.application.verify import VerifyUseCase
-from ecuador_data.domain.catalog import load_catalog
+from ecuador_data.domain.catalog import Catalog, load_catalog, load_mini_catalog
 from ecuador_data.domain.errors import (
     CatalogError,
     IntegrityError,
@@ -35,6 +40,17 @@ app = typer.Typer(
 DATA_DIR_OPTION = typer.Option(
     None, "--data-dir", help="Data directory (default: ECUADOR_DATA_DATA_DIR or ./data)."
 )
+
+
+class Subset(StrEnum):
+    """Which curated catalog to build or export."""
+
+    full = "full"
+    mini = "mini"
+
+
+def _catalog_for(subset: Subset) -> Catalog:
+    return load_mini_catalog() if subset is Subset.mini else load_catalog()
 
 
 def _version_callback(value: bool) -> None:
@@ -112,6 +128,7 @@ def refresh(data_dir: Path | None = DATA_DIR_OPTION) -> None:
 @app.command()
 def build(
     data_dir: Path | None = DATA_DIR_OPTION,
+    subset: Subset = typer.Option(Subset.full, "--subset", help="Catalog subset to build."),
     out: Path | None = typer.Option(
         None, "--out", help="Snapshot output path (default: <data-dir>/snapshot/...)."
     ),
@@ -120,11 +137,14 @@ def build(
 
     def action() -> None:
         settings = _settings(data_dir)
+        target = out
+        if target is None and subset is Subset.mini:
+            target = settings.data_dir / "snapshot" / "mini.snapshot.sqlite"
         result = BuildUseCase(
             store=FileRawStore(settings.data_dir),
             writer=SqliteSnapshotWriter(),
-            catalog=load_catalog(),
-        ).execute(out)
+            catalog=_catalog_for(subset),
+        ).execute(target, update_manifest=subset is Subset.full)
         typer.echo(f"built {result.path}")
         typer.echo(f"logical_sha256: {result.logical_sha256}")
         typer.echo(
@@ -134,6 +154,55 @@ def build(
         )
 
     _run(action, label="build")
+
+
+@app.command("export-json")
+def export_json(
+    data_dir: Path | None = DATA_DIR_OPTION,
+    subset: Subset = typer.Option(Subset.mini, "--subset", help="Catalog subset to export."),
+    out: Path = typer.Option(..., "--out", help="JSON output path."),
+) -> None:
+    """Export a deterministic JSON snapshot for the in-memory adapter."""
+
+    def action() -> None:
+        settings = _settings(data_dir)
+        result = ExportJsonUseCase(
+            store=FileRawStore(settings.data_dir),
+            writer=SqliteSnapshotWriter(),
+            exporter=JsonSnapshotExporter(),
+            catalog=_catalog_for(subset),
+        ).execute(out)
+        typer.echo(f"exported {result.path} ({result.bytes} bytes, subset={subset.value})")
+        typer.echo(
+            "counts: "
+            f"topics={result.topics} geographies={result.geographies} "
+            f"indicators={result.indicators} observations={result.observations}"
+        )
+
+    _run(action, label="export-json")
+
+
+@app.command("import-lakehouse")
+def import_lakehouse(
+    manifest: Path = typer.Option(..., "--manifest", help="Lakehouse manifest v1 path."),
+    out: Path = typer.Option(..., "--out", help="Snapshot output path."),
+) -> None:
+    """Import a lakehouse DuckDB export described by manifest v1."""
+
+    def action() -> None:
+        result = ImportLakehouseUseCase(
+            source=LakehouseDuckDbSource(),
+            writer=SqliteSnapshotWriter(),
+        ).execute(manifest, out)
+        typer.echo(f"imported {result.path}")
+        typer.echo(f"logical_sha256: {result.logical_sha256}")
+        typer.echo(
+            "counts: "
+            f"topics={result.topics} geographies={result.geographies} "
+            f"indicators={result.indicators} observations={result.observations}"
+        )
+
+    _run(action, label="import-lakehouse")
 
 
 @app.command()
@@ -159,8 +228,11 @@ def verify(data_dir: Path | None = DATA_DIR_OPTION) -> None:
 
 
 __all__ = [
+    "Subset",
     "app",
     "build",
+    "export_json",
+    "import_lakehouse",
     "refresh",
     "verify",
 ]

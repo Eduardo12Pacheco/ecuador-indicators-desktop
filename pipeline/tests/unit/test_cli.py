@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -26,7 +27,7 @@ def test_help_lists_the_cli() -> None:
     result = runner.invoke(app, ["--help"])
     assert result.exit_code == 0
     assert "ecuador-data" in result.stdout
-    for command in ("refresh", "build", "verify"):
+    for command in ("refresh", "build", "verify", "export-json", "import-lakehouse"):
         assert command in result.stdout
 
 
@@ -46,6 +47,18 @@ def test_build_command_prints_the_logical_hash(mini_copy: Path, tmp_path: Path) 
         line for line in second.stdout.splitlines() if line.startswith("logical_sha256")
     )
     assert first_hash == second_hash
+
+
+def test_build_mini_subset_uses_the_mini_catalog(mini_copy: Path, tmp_path: Path) -> None:
+    out = tmp_path / "mini.sqlite"
+    before = json.loads((mini_copy / "MANIFEST.json").read_text(encoding="utf-8"))["snapshot"]
+    result = runner.invoke(
+        app, ["build", "--subset", "mini", "--data-dir", str(mini_copy), "--out", str(out)]
+    )
+    assert result.exit_code == 0, result.stderr
+    assert "counts: topics=3 geographies=3 indicators=2 observations=236" in result.stdout
+    after = json.loads((mini_copy / "MANIFEST.json").read_text(encoding="utf-8"))["snapshot"]
+    assert after == before
 
 
 def test_verify_command_prints_the_counts(mini_copy: Path) -> None:

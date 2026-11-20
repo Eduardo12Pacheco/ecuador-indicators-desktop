@@ -1,0 +1,122 @@
+# Mini catalog: a six-indicator, five-geography subset of the full curated
+# catalog. It feeds `build --subset mini` and `export-json --subset mini`; the
+# resulting fixtures are used by the Rust contract tests and the in-memory
+# adapter. Every entry must match the full catalog (a test enforces it).
+
+[[topic]]
+id = "economy"
+name_en = "Economy & prices"
+name_es = "Economía y precios"
+sort_order = 1
+
+[[topic]]
+id = "labour"
+name_en = "Labour & poverty"
+name_es = "Trabajo y pobreza"
+sort_order = 3
+
+[[topic]]
+id = "society"
+name_en = "Population & society"
+name_es = "Población y sociedad"
+sort_order = 4
+
+[[indicator]]
+code = "NY.GDP.MKTP.CD"
+topic = "economy"
+value_kind = "currency"
+decimals = 0
+higher_is = "better"
+unit_en = "current US$"
+unit_es = "US$ corrientes"
+sort_order = 1
+
+[[indicator]]
+code = "NY.GDP.MKTP.KD.ZG"
+topic = "economy"
+value_kind = "percent"
+decimals = 1
+higher_is = "better"
+unit_en = "% per year"
+unit_es = "% anual"
+sort_order = 2
+
+[[indicator]]
+code = "FP.CPI.TOTL.ZG"
+topic = "economy"
+value_kind = "percent"
+decimals = 1
+higher_is = "worse"
+unit_en = "% per year"
+unit_es = "% anual"
+sort_order = 5
+
+[[indicator]]
+code = "SL.UEM.TOTL.ZS"
+topic = "labour"
+value_kind = "percent"
+decimals = 1
+higher_is = "worse"
+unit_en = "% of labor force"
+unit_es = "% de la fuerza laboral"
+sort_order = 11
+
+[[indicator]]
+code = "SI.POV.NAHC"
+topic = "labour"
+value_kind = "percent"
+decimals = 1
+higher_is = "worse"
+unit_en = "% of population"
+unit_es = "% de la población"
+sort_order = 15
+
+[[indicator]]
+code = "SP.DYN.LE00.IN"
+topic = "society"
+value_kind = "years"
+decimals = 1
+higher_is = "better"
+unit_en = "years"
+unit_es = "años"
+sort_order = 22
+
+[[geography]]
+iso3 = "ECU"
+name_en = "Ecuador"
+name_es = "Ecuador"
+iso2 = "EC"
+is_aggregate = false
+sort_order = 1
+
+[[geography]]
+iso3 = "COL"
+name_en = "Colombia"
+name_es = "Colombia"
+iso2 = "CO"
+is_aggregate = false
+sort_order = 2
+
+[[geography]]
+iso3 = "PER"
+name_en = "Peru"
+name_es = "Perú"
+iso2 = "PE"
+is_aggregate = false
+sort_order = 3
+
+[[geography]]
+iso3 = "LCN"
+name_en = "Latin America & Caribbean"
+name_es = "América Latina y el Caribe"
+iso2 = "ZJ"
+is_aggregate = true
+sort_order = 6
+
+[[geography]]
+iso3 = "WLD"
+name_en = "World"
+name_es = "Mundo"
+iso2 = "1W"
+is_aggregate = true
+sort_order = 7

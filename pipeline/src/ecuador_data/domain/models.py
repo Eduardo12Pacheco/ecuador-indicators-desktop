@@ -63,6 +63,12 @@ class CatalogIndicator(FrozenModel):
     decimals: int = Field(ge=0, le=4)
     higher_is: HigherIs
     sort_order: int = Field(ge=0)
+    # The World Bank Spanish API returns an empty entry for a few indicators.
+    # These curated fallbacks are used only when the API value is empty, so the
+    # snapshot still satisfies the bilingual contract (S2).
+    fallback_name_es: str | None = None
+    fallback_description_es: str | None = None
+    fallback_source_org_es: str | None = None
 
 
 class Observation(FrozenModel):

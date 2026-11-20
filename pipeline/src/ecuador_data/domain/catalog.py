@@ -122,6 +122,46 @@ def load_catalog(catalog_dir: Path | None = None) -> Catalog:
     indicator_entries = _table_list(_read_toml(indicators_path), "indicator", indicators_path)
     geography_entries = _table_list(_read_toml(geographies_path), "geography", geographies_path)
 
+    return _assemble(
+        topic_entries,
+        indicator_entries,
+        geography_entries,
+        indicators_path=indicators_path,
+        geographies_path=geographies_path,
+    )
+
+
+def load_catalog_file(path: Path) -> Catalog:
+    """Load a single TOML file that defines topics, indicators and geographies.
+
+    The mini subset uses this layout so one file fully describes the fixture.
+    """
+
+    payload = _read_toml(path)
+    return _assemble(
+        _table_list(payload, "topic", path),
+        _table_list(payload, "indicator", path),
+        _table_list(payload, "geography", path),
+        indicators_path=path,
+        geographies_path=path,
+    )
+
+
+def load_mini_catalog(catalog_dir: Path | None = None) -> Catalog:
+    """Load the six-indicator, five-geography mini subset."""
+
+    directory = catalog_dir or default_catalog_dir()
+    return load_catalog_file(directory / "mini.toml")
+
+
+def _assemble(
+    topic_entries: list[dict[str, Any]],
+    indicator_entries: list[dict[str, Any]],
+    geography_entries: list[dict[str, Any]],
+    *,
+    indicators_path: Path,
+    geographies_path: Path,
+) -> Catalog:
     topics = tuple(_build_topic(entry, indicators_path) for entry in topic_entries)
     geographies = tuple(_build_geography(entry, geographies_path) for entry in geography_entries)
     indicators = tuple(_build_indicator(entry, indicators_path) for entry in indicator_entries)

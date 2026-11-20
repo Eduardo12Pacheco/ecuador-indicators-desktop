@@ -7,16 +7,21 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from ecuador_data.settings import Settings, load_settings
+from ecuador_data.settings import Settings, default_data_dir, load_settings
 
 
 def test_defaults() -> None:
     settings = Settings(_env_file=None)
-    assert settings.data_dir == Path("data")
+    assert settings.data_dir == default_data_dir()
+    assert settings.data_dir.name == "data"
     assert settings.http_timeout_s == 30.0
     assert settings.http_retries == 4
     assert "ecuador-data/" in settings.user_agent
     assert settings.log_level == "INFO"
+
+
+def test_default_data_dir_points_to_the_repository_data_directory() -> None:
+    assert default_data_dir() == Path(__file__).resolve().parents[2].parent / "data"
 
 
 def test_environment_overrides(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

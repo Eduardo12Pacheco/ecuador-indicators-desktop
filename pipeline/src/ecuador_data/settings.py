@@ -10,6 +10,20 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from ecuador_data import __version__
 
 
+def default_data_dir() -> Path:
+    """Return the repository ``data/`` directory for source checkouts.
+
+    Running the CLI from ``pipeline/`` (as documented) must write to the
+    repository-level ``data/`` directory, not to ``pipeline/data/``. Installed
+    wheels fall back to ``./data``; deployments set ``ECUADOR_DATA_DATA_DIR``.
+    """
+
+    pipeline_dir = Path(__file__).resolve().parents[2]
+    if (pipeline_dir / "pyproject.toml").is_file():
+        return pipeline_dir.parent / "data"
+    return Path("data")
+
+
 class Settings(BaseSettings):
     """Runtime configuration for the data pipeline.
 
@@ -24,7 +38,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    data_dir: Path = Path("data")
+    data_dir: Path = Field(default_factory=default_data_dir)
     http_timeout_s: float = Field(default=30.0, gt=0)
     http_retries: int = Field(default=4, ge=1, le=10)
     user_agent: str = Field(

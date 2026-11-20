@@ -329,6 +329,10 @@ higher_is = "better"
 unit_en = "% of population"
 unit_es = "% de la población"
 sort_order = 28
+# The World Bank Spanish API returns an empty entry for this indicator.
+fallback_name_es = "Personas que utilizan servicios de agua potable gestionados de forma segura (% de la población)"
+fallback_description_es = "Porcentaje de personas que utilizan agua potable procedente de una fuente mejorada accesible en el lugar, disponible cuando se necesita y libre de contaminación fecal y de productos químicos prioritarios. Las fuentes mejoradas incluyen agua corriente, pozos entubados, pozos excavados protegidos, manantiales protegidos y agua envasada o suministrada."
+fallback_source_org_es = "Programa Conjunto de Monitoreo del Abastecimiento de Agua, el Saneamiento y la Higiene (JMP) de la OMS y el UNICEF"
 
 [[indicator]]
 code = "SH.STA.MMRT"
@@ -379,6 +383,10 @@ higher_is = "neutral"
 unit_en = "t CO2e per person"
 unit_es = "t CO2e por persona"
 sort_order = 33
+# The World Bank Spanish API returns an empty entry for this indicator.
+fallback_name_es = "Emisiones de dióxido de carbono (CO2) excluido el uso de la tierra y la silvicultura (UTCUTS) per cápita (t CO2e/capita)"
+fallback_description_es = "Emisiones anuales totales de dióxido de carbono (CO2), uno de los seis gases de efecto invernadero de Kioto, procedentes de los sectores agrícola, energético, de residuos e industrial, excluido el uso de la tierra y la silvicultura (UTCUTS), estandarizadas a valores equivalentes de CO2 y divididas por la población de la economía. Esta medida excluye los flujos de gases de efecto invernadero causados por el uso de la tierra, el cambio de uso de la tierra y la silvicultura (UTCUTS), ya que estos flujos tienen mayores incertidumbres."
+fallback_source_org_es = "EDGAR (Base de Datos de Emisiones para la Investigación Atmosférica Global), Centro Común de Investigación (JRC) de la Comisión Europea"
 
 [[indicator]]
 code = "AG.LND.FRST.ZS"

@@ -6,7 +6,13 @@ from pathlib import Path
 
 import pytest
 
-from ecuador_data.domain.catalog import Catalog, default_catalog_dir, load_catalog
+from ecuador_data.domain.catalog import (
+    Catalog,
+    default_catalog_dir,
+    load_catalog,
+    load_catalog_file,
+    load_mini_catalog,
+)
 from ecuador_data.domain.errors import CatalogError
 
 VALID_INDICATORS = """
@@ -60,6 +66,54 @@ def test_default_catalog_has_38_indicators_8_topics_and_7_geographies() -> None:
 
 def test_default_catalog_dir_points_to_the_repository_catalog() -> None:
     assert default_catalog_dir().joinpath("indicators.toml").is_file()
+    assert default_catalog_dir().joinpath("mini.toml").is_file()
+
+
+def test_mini_catalog_is_a_consistent_subset_of_the_full_catalog() -> None:
+    full = load_catalog()
+    mini = load_mini_catalog()
+    assert mini.indicator_codes() == (
+        "NY.GDP.MKTP.CD",
+        "NY.GDP.MKTP.KD.ZG",
+        "FP.CPI.TOTL.ZG",
+        "SL.UEM.TOTL.ZS",
+        "SI.POV.NAHC",
+        "SP.DYN.LE00.IN",
+    )
+    assert mini.geography_codes() == ("ECU", "COL", "PER", "LCN", "WLD")
+    assert [topic.id for topic in mini.topics] == ["economy", "labour", "society"]
+
+    full_indicators = {indicator.code: indicator for indicator in full.indicators}
+    for indicator in mini.indicators:
+        assert indicator == full_indicators[indicator.code]
+    full_geographies = {geography.iso3: geography for geography in full.geographies}
+    for geography in mini.geographies:
+        assert geography == full_geographies[geography.iso3]
+    for topic in mini.topics:
+        assert topic == full.topic_by_id(topic.id)
+
+
+def test_catalog_carries_spanish_fallbacks_for_untranslated_indicators() -> None:
+    catalog = load_catalog()
+    indicators = {indicator.code: indicator for indicator in catalog.indicators}
+    # The World Bank Spanish API returns empty metadata for these two codes.
+    for code in ("SH.H2O.SMDW.ZS", "EN.GHG.CO2.PC.CE.AR5"):
+        indicator = indicators[code]
+        assert indicator.fallback_name_es
+        assert indicator.fallback_description_es
+        assert indicator.fallback_source_org_es
+
+
+def test_load_catalog_file_reads_all_three_tables(tmp_path: Path) -> None:
+    catalog_path = tmp_path / "mini.toml"
+    catalog_path.write_text(
+        VALID_INDICATORS + VALID_GEOGRAPHIES,
+        encoding="utf-8",
+    )
+    catalog = load_catalog_file(catalog_path)
+    assert len(catalog.indicators) == 1
+    assert len(catalog.geographies) == 1
+    assert catalog.geography_codes() == ("ECU",)
 
 
 def test_topic_lookup() -> None:
