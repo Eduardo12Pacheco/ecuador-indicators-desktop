@@ -34,8 +34,8 @@ export function AppProviders({
       <I18nProvider>
         <ThemeProvider>
           <PortsProvider ports={ports}>
-            <SettingsSync />
             <ToastProvider>
+              <SettingsSync />
               <ExportProvider>{children}</ExportProvider>
             </ToastProvider>
           </PortsProvider>
