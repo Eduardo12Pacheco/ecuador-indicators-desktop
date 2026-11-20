@@ -37,6 +37,27 @@ function round(value) {
   return Math.round(Number(value) * 100) / 100;
 }
 
+/** Walks the Playwright JSON report and returns its distinct scenarios and project names. */
+export function summarizePlaywright(report) {
+  const scenarios = new Set();
+  const projects = new Set();
+  const visit = (suites) => {
+    for (const suite of suites ?? []) {
+      for (const spec of suite.specs ?? []) {
+        scenarios.add(`${spec.file}::${spec.title}`);
+        for (const test of spec.tests ?? []) {
+          if (test.projectName) {
+            projects.add(test.projectName);
+          }
+        }
+      }
+      visit(suite.suites);
+    }
+  };
+  visit(report.suites);
+  return { scenarios: scenarios.size, projects: [...projects].sort() };
+}
+
 /** Collects every measured value from the repository artifacts. */
 export function collectMetrics({ root = defaultRoot } = {}) {
   const coverage = readJson(join(root, "coverage", "coverage-summary.json"), "TypeScript coverage");
@@ -76,7 +97,7 @@ export function collectMetrics({ root = defaultRoot } = {}) {
       lines: round(total.lines?.pct),
     },
     python: { percent: round(pythonPercent) },
-    playwright: { tests: playwrightTests },
+    playwright: { tests: playwrightTests, ...summarizePlaywright(playwright) },
     bundle: { gzipBytes, gzipKiB: round(gzipBytes / 1024) },
     snapshot: {
       topics: Number(counts.topics ?? 0),
