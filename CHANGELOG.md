@@ -48,6 +48,10 @@ Entries are generated from Conventional Commits with git-cliff.
 
 - Finalize design, testing and adr closure ([e7fd0ca](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/e7fd0ca1fcf1238465233d266e84932201444a2d))
 
+- Record the measured bundle size ([c72e5cd](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/c72e5cd97c911f454e019004db6bd65716599ea5))
+
+- Document the typed environment settings ([2854f4a](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/2854f4af4af8d5908466ae248626d6050191a96d))
+
 
 ### Features
 
@@ -245,6 +249,8 @@ Entries are generated from Conventional Commits with git-cliff.
 - **release**: Exclude the checksum file from its own input ([4085c29](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/4085c2953e695ea1f3a0df80d8e6f61276d6d95f))
 
 - Add metrics script and documentation checks ([eca3379](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/eca3379c2c6b1c30face29a433d544bfae5654df))
+
+- **release**: Generate initial changelog ([2b4611c](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/2b4611c29daa3b4965d7859838f494bc5d01ff86))
 
 
 ### Tests
