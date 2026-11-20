@@ -1,0 +1,59 @@
+# ADR 0007 — Browser end-to-end and accessibility testing strategy
+
+## Status
+
+Accepted (T11, 2026-11-20).
+
+## Context
+
+The desktop app is a React UI over a thin Rust core. Most product logic is
+already covered by Vitest and Rust tests, but three classes of defects can only
+be caught in a real browser: hash-router flows, persistence through the real
+`localStorage` adapter, and browser accessibility/layout behavior. The plan
+requires `offline.spec.ts` to prove S1 with a network guard, `a11y.spec.ts` to
+scan every route × theme × language with axe (S11), and `states.spec.ts` to
+exercise the recovery paths from S12. Native E2E is a separate layer (T12).
+
+## Decision
+
+- **Playwright 1.65, two browser projects.** Chromium and WebKit run the same
+  specs at 1280×800. WebKit approximates WKWebView/WebKitGTK; Chromium matches
+  WebView2. Traces are retained on failure and screenshots are failure-only;
+  there is no visual-regression suite because cross-OS font rasterization makes
+  it brittle.
+- **Test the production frontend.** The config runs `npm run build:e2e` and
+  Vite preview on port 4173. That build loads the mini JSON snapshot through
+  the in-memory adapter, so tests exercise the same code paths as the browser
+  build while staying deterministic and offline. The native IPC adapter is
+  covered by Rust command tests and by T12.
+- **Seed state before first paint.** `e2e/support/fixtures.ts` seeds the
+  mirrored theme/language keys and the authoritative settings document once per
+  context (guarded by `sessionStorage`) so a reload keeps what the app itself
+  persisted. Tests can inject the same `e2e:fault` keys the adapter understands.
+- **No sleeps.** The suite uses web-first assertions only. `waitForTimeout` is
+  forbidden by review and checked by the acceptance command.
+- **Full axe scans, no exclusions.** `e2e/support/a11y.ts` runs axe tags
+  `wcag2a`, `wcag2aa`, `wcag21a` and `wcag21aa` over seven routes × two themes
+  × two languages, plus four open dialogs. Any exclusion would need a written
+  justification; the current suite has none.
+- **The network guard is the S1 evidence.** `offline.spec.ts` aborts every
+  non-localhost request and asserts `blockedRequests.length === 0` after a full
+  Explore → Compare → Save → Export flow.
+- **Platform modifiers come from the user agent, not the host OS.** Playwright
+  WebKit reports a macOS UA even on Linux, so helpers derive `Meta`/`Control`
+  from `navigator.userAgent`, mirroring `detectPlatform` in the app.
+
+## Consequences
+
+- CI needs `npx playwright install --with-deps chromium webkit` plus the Tauri
+  Linux prerequisites for the build. The browser suite is not part of the fast
+  `verify:fast` loop; it runs in the dedicated CI job.
+- Test failures produce a trace and screenshot in `test-results/`, which the CI
+  job uploads. Passing runs stay clean.
+- Native-only behavior (single instance, window state, file dialogs) remains
+  untested at this layer and is owned by T12; macOS native E2E is out of scope
+  because `tauri-driver` has no WKWebView driver, as documented at
+  <https://v2.tauri.app/develop/tests/webdriver/> and checked on 2026-11-19.
+- The in-memory adapter needs the documented `e2e:fault` keys to simulate
+  dataset, catalog, observation and snapshot failures. Those keys are test
+  hooks, not user-facing configuration.
