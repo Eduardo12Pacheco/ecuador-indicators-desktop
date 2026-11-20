@@ -198,10 +198,23 @@ describe("TypeScript dependency rules", () => {
     ).toEqual([]);
   });
 
-  it("keeps ui on core and ui only", () => {
-    expect(violations("ui", ["core.domain", "core.application", "core.contracts", "ui"])).toEqual(
-      [],
-    );
+  it("keeps ui on core, ui and presentation libraries", () => {
+    // UI components may use React and presentational npm packages, but never
+    // adapters, the app composition root or Tauri APIs (the table's hard rule).
+    expect(
+      violations("ui", [
+        "core.domain",
+        "core.application",
+        "core.contracts",
+        "ui",
+        "framework",
+        "external",
+      ]),
+    ).toEqual([]);
+    const tauri = EDGES.filter(
+      (edge) => edge.file.startsWith("ui/") && edge.specifier.startsWith("@tauri-apps/"),
+    ).map((edge) => `${edge.file} -> ${edge.specifier}`);
+    expect(tauri).toEqual([]);
   });
 
   it("keeps framework imports out of the core", () => {
