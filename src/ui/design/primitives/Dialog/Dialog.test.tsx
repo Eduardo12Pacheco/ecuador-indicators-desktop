@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useState } from "react";
 import { describe, expect, it } from "vitest";
 
 import { I18nProvider } from "../../../i18n/I18nProvider";
@@ -36,6 +37,35 @@ describe("Dialog", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: "Open" }));
     await userEvent.click(screen.getByRole("button", { name: "Close dialog" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  });
+});
+
+function ControlledDialog() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)}>
+        open
+      </button>
+      <Dialog open={open} onOpenChange={setOpen} title="Controlled">
+        <p>content</p>
+      </Dialog>
+    </>
+  );
+}
+
+describe("Dialog controlled mode", () => {
+  it("opens and closes without a trigger", async () => {
+    render(
+      <I18nProvider>
+        <ControlledDialog />
+      </I18nProvider>,
+    );
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "open" }));
+    expect(screen.getByRole("dialog", { name: "Controlled" })).toBeInTheDocument();
+    await userEvent.keyboard("{Escape}");
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 });

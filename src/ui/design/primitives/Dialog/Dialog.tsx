@@ -11,16 +11,24 @@ export function Dialog({
   title,
   description,
   children,
+  open,
+  onOpenChange,
 }: {
-  readonly trigger: ReactElement;
+  readonly trigger?: ReactElement;
   readonly title: string;
   readonly description?: string;
   readonly children: ReactNode;
+  /** Controlled mode; omit to keep Radix's uncontrolled trigger behavior. */
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
 }) {
   const { t } = useT();
+  const controlled = open === undefined ? {} : { open, onOpenChange };
   return (
-    <DialogPrimitive.Root>
-      <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>
+    <DialogPrimitive.Root {...controlled}>
+      {trigger === undefined ? null : (
+        <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>
+      )}
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className={styles.overlay} />
         <DialogPrimitive.Content className={styles.content}>
