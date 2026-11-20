@@ -5,6 +5,7 @@ import { type Indicator, type IndicatorCode, indicatorName } from "../../../core
 import { normalizeText } from "../../../core/domain/search";
 import { Chip } from "../../design/primitives/Chip/Chip";
 import { LiveRegion } from "../../design/primitives/LiveRegion/LiveRegion";
+import { VisuallyHidden } from "../../design/primitives/VisuallyHidden/VisuallyHidden";
 import { useT } from "../../i18n/useT";
 import styles from "./IndicatorMultiPicker.module.css";
 
@@ -150,12 +151,12 @@ export function IndicatorMultiPicker({
                 role="option"
                 aria-selected={false}
                 aria-disabled={atMax}
-                aria-label={t("compare.indicatorPicker.add", { name: label })}
                 tabIndex={index === activeIndex ? 0 : -1}
                 className={[styles.option, atMax ? styles.disabled : ""].filter(Boolean).join(" ")}
                 onClick={() => add(indicator)}
                 onFocus={() => setActiveIndex(index)}
               >
+                <VisuallyHidden>{t("compare.indicatorPicker.add", { name: label })}</VisuallyHidden>
                 <span className={styles.optionName}>{label}</span>
                 <span className={styles.optionCode}>{indicator.code}</span>
               </button>

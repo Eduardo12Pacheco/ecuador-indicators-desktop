@@ -76,6 +76,7 @@ function fakeDataset(overrides: Partial<DatasetRepository> = {}): DatasetReposit
 describe("fault injection", () => {
   it("reads only known faults", () => {
     expect(readFault(fakeStorage("catalog"))).toBe("catalog");
+    expect(readFault(fakeStorage("snapshot"))).toBe("snapshot");
     expect(readFault(fakeStorage("nope"))).toBeNull();
     expect(readFault(null)).toBeNull();
   });
@@ -98,6 +99,13 @@ describe("fault injection", () => {
     expect((await observationFault.getCatalog()).ok).toBe(true);
     expect((await observationFault.openSnapshot("/x")).ok).toBe(true);
     expect((await observationFault.resetSnapshot()).ok).toBe(true);
+
+    const snapshotFault = new FaultInjectingDatasetRepository(inner, fakeStorage("snapshot"));
+    expect(await snapshotFault.getInfo()).toEqual({
+      ok: false,
+      error: expect.objectContaining({ code: "SNAPSHOT_INVALID" }),
+    });
+    expect((await snapshotFault.getCatalog()).ok).toBe(true);
   });
 
   it("fails view reads with STORAGE but keeps writes", async () => {

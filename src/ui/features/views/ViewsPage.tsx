@@ -66,7 +66,7 @@ export function ViewsPage() {
   const viewsResult = viewsQuery.data;
   const catalog = catalogQuery.data?.ok === true ? catalogQuery.data.value : null;
 
-  function describe(view: SavedView): string {
+  function describeView(view: SavedView): string {
     return catalog === null ? view.spec.kind : describeViewSpec(view.spec, catalog, lang as Lang);
   }
 
@@ -145,7 +145,7 @@ export function ViewsPage() {
                     <h2 className={styles.name}>{view.name}</h2>
                     <Chip>{t(viewKindKey(view))}</Chip>
                   </header>
-                  <p className={styles.summary}>{describe(view)}</p>
+                  <p className={styles.summary}>{describeView(view)}</p>
                   <p className={styles.updated}>
                     {t("views.updated", { date: formatUpdated(view.updatedAt, locale) })}
                   </p>

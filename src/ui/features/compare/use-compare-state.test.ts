@@ -70,6 +70,28 @@ describe("trajectories state", () => {
     expect(state.baseYear).toBeNull();
   });
 
+  it("prefers Ecuador as the default even when the catalog order differs", () => {
+    const catalog = makeCatalog();
+    const ecuador = catalog.geographies.find((geography) => geography.iso3 === "ECU");
+    const colombia = catalog.geographies.find((geography) => geography.iso3 === "COL");
+    if (ecuador === undefined || colombia === undefined) {
+      throw new Error("the factory catalog must include ECU and COL");
+    }
+    const withColombiaFirst: Catalog = {
+      ...catalog,
+      geographies: [
+        colombia,
+        ecuador,
+        ...catalog.geographies.filter(
+          (geography) => geography.iso3 !== "ECU" && geography.iso3 !== "COL",
+        ),
+      ],
+    };
+    expect(parseTrajectoriesState(params(), withColombiaFirst).geography).toBe("ECU");
+    expect(parseTrajectoriesState(params({ g: "XXX" }), withColombiaFirst).geography).toBe("ECU");
+    expect(parseTrajectoriesState(params({ g: "COL" }), withColombiaFirst).geography).toBe("COL");
+  });
+
   it("round-trips a non-default state", () => {
     const state = {
       indicators: [indicatorCode("FP.CPI.TOTL.ZG"), indicatorCode("NY.GDP.MKTP.CD")] as const,

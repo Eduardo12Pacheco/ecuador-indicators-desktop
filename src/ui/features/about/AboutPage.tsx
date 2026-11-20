@@ -160,7 +160,12 @@ export function AboutPage() {
             />
           </label>
         </div>
-        <div className={styles.tableWrapper}>
+        <section
+          className={styles.tableWrapper}
+          aria-label={t("about.indicators.title")}
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: WCAG 2.1.1 requires scrollable regions to be keyboard-focusable (axe: scrollable-region-focusable).
+          tabIndex={0}
+        >
           <table className={styles.table}>
             <caption className={styles.visuallyHidden}>{t("about.indicators.title")}</caption>
             <thead>
@@ -180,7 +185,7 @@ export function AboutPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
       </section>
 
       <div className={styles.columns}>

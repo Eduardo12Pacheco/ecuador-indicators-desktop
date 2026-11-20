@@ -102,7 +102,10 @@ function sanitizeIndicators(raw: string | null, catalog: Catalog): IndicatorCode
 function sanitizeGeography(raw: string | null, catalog: Catalog): Iso3 {
   const normalized = (raw ?? "").trim().toUpperCase();
   const match = catalog.geographies.find((geography) => geography.iso3 === normalized);
-  return match?.iso3 ?? catalog.geographies[0]?.iso3 ?? DEFAULT_COMPARE_GEOGRAPHY;
+  const fallback = catalog.geographies.find(
+    (geography) => geography.iso3 === DEFAULT_COMPARE_GEOGRAPHY,
+  );
+  return match?.iso3 ?? fallback?.iso3 ?? catalog.geographies[0]?.iso3 ?? DEFAULT_COMPARE_GEOGRAPHY;
 }
 
 /** Parses and sanitizes trajectories state from URL search parameters. */

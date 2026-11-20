@@ -54,7 +54,7 @@ describe("IndicatorMultiPicker", () => {
         }}
       />,
     );
-    await userEvent.click(screen.getByRole("option", { name: "Add Population, total" }));
+    await userEvent.click(screen.getByRole("option", { name: /Add Population, total/ }));
     expect(selected.map((code) => code)).toContain("SP.POP.TOTL");
   });
 
@@ -71,7 +71,9 @@ describe("IndicatorMultiPicker", () => {
       />,
     );
     await userEvent.click(
-      screen.getByRole("option", { name: "Add Individuals using the Internet (% of population)" }),
+      screen.getByRole("option", {
+        name: /Add Individuals using the Internet \(% of population\)/,
+      }),
     );
     expect(changes).toBe(0);
     expect(screen.getByText("At most 4 indicators")).toBeInTheDocument();
@@ -108,9 +110,9 @@ describe("IndicatorMultiPicker", () => {
       screen.getByRole("searchbox", { name: "Filtrar indicadores" }),
       "poblacion",
     );
-    expect(screen.getByRole("option", { name: "Añadir Población total" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Añadir Población total/ })).toBeInTheDocument();
     expect(
-      screen.queryByRole("option", { name: "Añadir Esperanza de vida al nacer (años)" }),
+      screen.queryByRole("option", { name: /Añadir Esperanza de vida al nacer \(años\)/ }),
     ).not.toBeInTheDocument();
   });
 });

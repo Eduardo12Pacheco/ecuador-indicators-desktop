@@ -1,9 +1,9 @@
 /**
  * Fault-injection decorators for Playwright state tests (S12).
  *
- * The spec sets `localStorage['e2e:fault']` to `catalog`, `observations` or
- * `views`; the matching reads fail with `STORAGE` until the key is cleared, so
- * the Retry path can be exercised deterministically.
+ * The spec sets `localStorage['e2e:fault']` to `catalog`, `observations`,
+ * `views` or `snapshot`; the matching reads fail until the key is cleared, so
+ * the Retry and Dataset-problem paths can be exercised deterministically.
  */
 
 import type { AppPorts, DatasetRepository, ViewRepository } from "../../core/application/ports";
@@ -12,7 +12,7 @@ import type { Catalog, NewView, Observation, SavedView } from "../../core/domain
 import { err, type Result } from "../../core/domain/result";
 
 /** The selectable failure surface. */
-export type FaultKind = "catalog" | "observations" | "views";
+export type FaultKind = "catalog" | "observations" | "views" | "snapshot";
 
 /** The localStorage key read by the decorators. */
 export const FAULT_KEY = "e2e:fault";
@@ -36,7 +36,12 @@ export function readFault(storage: FaultStorage | null = defaultStorage()): Faul
     return null;
   }
   const value = storage.getItem(FAULT_KEY);
-  return value === "catalog" || value === "observations" || value === "views" ? value : null;
+  return value === "catalog" ||
+    value === "observations" ||
+    value === "views" ||
+    value === "snapshot"
+    ? value
+    : null;
 }
 
 function storageError(kind: FaultKind) {
@@ -51,7 +56,9 @@ export class FaultInjectingDatasetRepository implements DatasetRepository {
   ) {}
 
   async getInfo() {
-    return this.inner.getInfo();
+    return readFault(this.storage) === "snapshot"
+      ? err(appError("SNAPSHOT_INVALID", "simulated snapshot failure", "fault injection: snapshot"))
+      : this.inner.getInfo();
   }
 
   async getCatalog(): Promise<Result<Catalog>> {

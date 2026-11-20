@@ -268,15 +268,17 @@ describe("ComparePage trajectories", () => {
   it("enforces the maximum of four indicators and announces it", async () => {
     renderCompare("/compare/trajectories");
     await screen.findByRole("group", { name: /indexed to/i });
-    await userEvent.click(screen.getByRole("option", { name: "Add Population, total" }));
+    await userEvent.click(screen.getByRole("option", { name: /Add Population, total/ }));
     await userEvent.click(
-      screen.getByRole("option", { name: "Add Life expectancy at birth (years)" }),
+      screen.getByRole("option", { name: /Add Life expectancy at birth \(years\)/ }),
     );
     expect(screen.getByTestId("location").textContent).toContain(
       "i=NY.GDP.MKTP.CD,FP.CPI.TOTL.ZG,SP.POP.TOTL,SP.DYN.LE00.IN",
     );
     await userEvent.click(
-      screen.getByRole("option", { name: "Add Individuals using the Internet (% of population)" }),
+      screen.getByRole("option", {
+        name: /Add Individuals using the Internet \(% of population\)/,
+      }),
     );
     expect(screen.getByText("At most 4 indicators")).toBeInTheDocument();
   });
