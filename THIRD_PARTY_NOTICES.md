@@ -39,7 +39,17 @@ texts stored in the snapshot are:
 ## Fonts: Inter, Fraunces and JetBrains Mono
 
 The application vendors the latin subsets of Inter Variable, Fraunces Variable
-and JetBrains Mono Variable from Fontsource 5.3.0. All three are licensed under
-the SIL Open Font License 1.1. The license texts are copied next to the font
-files (`src/ui/design/fonts/LICENSE-*.txt`) by `npm run fonts:sync`; the notice
-is completed with the font files in the design-system task.
+and JetBrains Mono Variable from Fontsource 5.3.0:
+
+- `src/ui/design/fonts/inter-latin-wght-normal.woff2` — Inter, Copyright (c)
+  2016 The Inter Project Authors.
+- `src/ui/design/fonts/fraunces-latin-wght-normal.woff2` — Fraunces, Copyright
+  (c) 2020 The Fraunces Project Authors.
+- `src/ui/design/fonts/jetbrains-mono-latin-wght-normal.woff2` — JetBrains Mono,
+  Copyright (c) 2020 The JetBrains Mono Project Authors.
+
+All three are licensed under the SIL Open Font License 1.1. The complete
+license texts are vendored next to the font files as
+`src/ui/design/fonts/LICENSE-inter.txt`, `LICENSE-fraunces.txt` and
+`LICENSE-jetbrains-mono.txt`; `npm run fonts:sync` reproduces them from the
+`@fontsource-variable/*` packages.
