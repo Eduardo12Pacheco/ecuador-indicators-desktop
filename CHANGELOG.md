@@ -17,6 +17,14 @@ Entries are generated from Conventional Commits with git-cliff.
 
 - **shell**: Find bundled resources in installed linux layouts ([45db364](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/45db364b0345324c26d5671a2d838fed45670aa6))
 
+- **app**: Persist theme and language changes made outside Settings ([7b3c692](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/7b3c6922d6c69257c45a28bc1d6a90e5e1805efc))
+
+- **explore**: Format values by transform and show a chart legend ([9c5f8c9](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/9c5f8c93d57c4889f0eb15a97ea90d518a221020))
+
+- **ui**: Format dates, counts and names for the display locale ([ec2554d](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/ec2554db24398157ad9a991205b1634b9bcf4852))
+
+- **ui**: Repair slider, picker, ranking and KPI card layouts ([275ed54](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/275ed54605ddbdd6c933bbdfb608872937e851b2))
+
 
 ### Documentation
 
@@ -51,6 +59,12 @@ Entries are generated from Conventional Commits with git-cliff.
 - Record the measured bundle size ([c72e5cd](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/c72e5cd97c911f454e019004db6bd65716599ea5))
 
 - Document the typed environment settings ([2854f4a](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/2854f4af4af8d5908466ae248626d6050191a96d))
+
+- **media**: Recapture screenshots and hero gif from the fixed UI ([908ccf4](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/908ccf454d0d8a528808a9a0e5cbf1cd23a67eb3))
+
+- Refresh measured numbers and be explicit that no release exists yet ([cc2843a](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/cc2843a80d840eea997a1b3a4616e99484f1c3df))
+
+- Record the final measured numbers ([0c5ca21](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/0c5ca21ea67257f21ccee83a48faf77b02c3904b))
 
 
 ### Features
@@ -252,6 +266,12 @@ Entries are generated from Conventional Commits with git-cliff.
 
 - **release**: Generate initial changelog ([2b4611c](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/2b4611c29daa3b4965d7859838f494bc5d01ff86))
 
+- **release**: Refresh the initial changelog ([193ccf5](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/193ccf52eb916c5b8e98db352ec640c36285993c))
+
+- **metrics**: Count distinct Playwright scenarios per run ([55df974](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/55df9743b584b77d13552f4609875fc91aa151bf))
+
+- Install llvm-tools before the Rust coverage gate ([ece78a2](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/ece78a29d733cbc20abeafbe26fb19c03928eb23))
+
 
 ### Tests
 
@@ -308,5 +328,7 @@ Entries are generated from Conventional Commits with git-cliff.
 - **native**: Add webdriver e2e suite and test ids ([e6a3df0](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/e6a3df0254bf2e46eb2fa1650c924bb9b0b2337c))
 
 - **e2e**: Assert the explore route before the save shortcut ([78f94fc](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/78f94fcab114079ccf023b77652a053e846d7af5))
+
+- Keep local test servers in the reserved 18xxx port range ([5d07f4c](https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/commit/5d07f4c8ee10988667f04a21fe38183746ca4c2f))
 
 
