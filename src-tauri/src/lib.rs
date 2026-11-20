@@ -2,10 +2,14 @@
 
 //! Tauri composition root for Ecuador Indicators.
 //!
-//! The window, commands and plugins are wired in T5; T1 only proves that the
-//! workspace and the Tauri shell compile on every target.
+//! T5 wires the headless CLI, typed configuration and logging first; the
+//! commands, self-check and window setup land in the following commits.
+
+pub mod cli;
+pub mod config;
+pub mod logging;
 
 /// Starts the desktop application.
 pub fn run() {
-    // Replaced by the Tauri builder in T5.
+    // Replaced by the full composition root later in T5.
 }
