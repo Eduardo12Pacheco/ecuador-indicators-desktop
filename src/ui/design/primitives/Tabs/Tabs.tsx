@@ -13,16 +13,23 @@ export interface TabItem {
 export function Tabs({
   items,
   defaultValue,
+  value,
   label,
   onValueChange,
 }: {
   readonly items: readonly TabItem[];
   readonly defaultValue: string;
+  /** Controlled selection; omit to let the tabs own their state. */
+  readonly value?: string;
   readonly label: string;
   readonly onValueChange?: (value: string) => void;
 }) {
   return (
-    <TabsPrimitive.Root defaultValue={defaultValue} onValueChange={onValueChange}>
+    <TabsPrimitive.Root
+      defaultValue={defaultValue}
+      {...(value === undefined ? {} : { value })}
+      onValueChange={onValueChange}
+    >
       <TabsPrimitive.List className={styles.list} aria-label={label}>
         {items.map((item) => (
           <TabsPrimitive.Trigger key={item.value} value={item.value} className={styles.trigger}>

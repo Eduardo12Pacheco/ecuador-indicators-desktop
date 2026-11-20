@@ -101,6 +101,79 @@ export const en = {
   "explore.empty.reset": "Back to GDP",
   "explore.data.caption": "{indicator}: {geographies}, {range}",
 
+  "compare.tabs": "Comparison view",
+  "compare.tab.trajectories": "Trajectories",
+  "compare.tab.ranking": "Ranking",
+  "compare.trajectories.description":
+    "Index two to four indicators to a base year for one geography.",
+  "compare.indicatorPicker.title": "Indicators",
+  "compare.indicatorPicker.filter": "Filter indicators",
+  "compare.indicatorPicker.placeholder": "Name, code or topic",
+  "compare.indicatorPicker.add": "Add {name}",
+  "compare.indicatorPicker.max": "At most 4 indicators",
+  "compare.indicatorPicker.min": "Choose at least 2 indicators",
+  "compare.indicatorPicker.noResults": "No indicators match “{query}”.",
+  "compare.geography": "Geography",
+  "compare.baseYear": "Base year",
+  "compare.noCommonYear.title": "No common base year",
+  "compare.noCommonYear.description":
+    "The selected indicators share no year for {geography}. Choose different indicators or geography.",
+  "compare.noCommonYear.reset": "Use default indicators",
+  "compare.chart.trajectoriesSummary":
+    "{indicators}, {geography}, indexed to {base}. Use the arrow keys to inspect values.",
+  "compare.chart.trajectoriesAnnounce": "{indicator}, {year}: {value}",
+  "compare.chart.rankingSummary":
+    "{indicator} ranking in {year}. Use the arrow keys to inspect values.",
+  "compare.chart.rankingAnnounce": "{geography}: {value}",
+  "compare.data.caption": "{indicator}: {geography}, {range}",
+  "compare.ranking.description": "Rank every geography for one indicator and year.",
+  "compare.ranking.indicator": "Indicator",
+  "compare.ranking.year": "Year",
+  "compare.ranking.rank": "Rank",
+  "compare.ranking.geography": "Geography",
+  "compare.ranking.value": "Value",
+  "compare.ranking.difference": "Difference vs Ecuador",
+  "compare.ranking.caption": "{indicator} ranking in {year}",
+  "compare.ranking.missingNote": "No data: {names}",
+  "compare.ranking.empty.title": "No data for this indicator",
+  "compare.ranking.empty.description":
+    "This indicator has no observations for any geography. Choose another indicator.",
+  "compare.ranking.reset": "Back to GDP",
+  "compare.states.loading": "Loading comparison…",
+  "compare.data.view": "Chart",
+  "compare.data.table": "Data table",
+
+  "palette.title": "Command palette",
+  "palette.description":
+    "Search indicators, geographies, saved views and actions. Use the arrow keys to navigate and Enter to run.",
+  "palette.placeholder": "Search or run a command…",
+  "palette.noResults": "No results for “{query}”.",
+  "palette.group.indicators": "Indicators",
+  "palette.group.geographies": "Geographies",
+  "palette.group.views": "Saved views",
+  "palette.group.actions": "Actions",
+  "palette.open": "Open command palette",
+
+  "shortcuts.title": "Keyboard shortcuts",
+  "shortcuts.description": "Every primary action has a keyboard path.",
+  "shortcuts.action": "Action",
+  "shortcuts.keys": "Keys",
+  "shortcuts.close": "Close",
+
+  "command.openPalette": "Open command palette",
+  "command.goExplore": "Go to Explore",
+  "command.goTrajectories": "Go to Compare: Trajectories",
+  "command.goRanking": "Go to Compare: Ranking",
+  "command.goViews": "Go to Saved views",
+  "command.goSettings": "Go to Settings",
+  "command.goAbout": "Go to Data & About",
+  "command.toggleTheme": "Toggle light and dark theme",
+  "command.langEnglish": "Switch language to English",
+  "command.langSpanish": "Switch language to Español",
+  "command.showShortcuts": "Show keyboard shortcuts",
+  "command.previousIndicator": "Previous indicator",
+  "command.nextIndicator": "Next indicator",
+
   "page.explore.title": "Explore an indicator",
   "page.explore.description":
     "Read one World Bank indicator over time, with optional peers and transforms.",
@@ -141,6 +214,8 @@ export const en = {
 
   "items.count_one": "{count} item",
   "items.count_other": "{count} items",
+  "palette.results_one": "{count} result",
+  "palette.results_other": "{count} results",
   "views.count_one": "{count} saved view",
   "views.count_other": "{count} saved views",
 } as const;
@@ -152,4 +227,4 @@ export type MessageKey = keyof typeof en;
 export type Messages = { readonly [K in MessageKey]: string };
 
 /** Plural bases supported by `tp`. */
-export type PluralKey = "items.count" | "views.count";
+export type PluralKey = "items.count" | "views.count" | "palette.results";
