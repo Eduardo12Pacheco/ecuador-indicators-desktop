@@ -1,0 +1,16 @@
+[package]
+name = "indicators-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Pure domain and application core for Ecuador Indicators"
+
+[lib]
+name = "indicators_core"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
