@@ -82,7 +82,7 @@ strict = true
 files = ["src"]
 
 [tool.pytest.ini_options]
-addopts = "--cov=ecuador_data --cov-report=term-missing --cov-fail-under=85"
+addopts = "--cov=ecuador_data --cov-report=term-missing --cov-report=json:coverage.json --cov-fail-under=85"
 testpaths = ["tests"]
 
 [tool.coverage.run]

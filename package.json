@@ -28,6 +28,7 @@
     "e2e:native": "node scripts/native-e2e-prereqs.mjs && npx tauri build --no-bundle && npm --prefix e2e-native test",
     "capture:media": "node scripts/prepare-web-fixture.mjs full && vite build --mode capture && playwright test --project=media && uv run --directory pipeline python tools/make_gif.py --frames ../.generated/frames --out ../docs/media/hero.gif --width 960 --duration-ms 900",
     "check:version": "node scripts/check-version-sync.mjs",
+    "metrics": "node scripts/collect-metrics.mjs",
     "check:bundle": "node scripts/check-bundle-size.mjs",
     "check:data": "uv run --directory pipeline ecuador-data verify",
     "verify:ts": "npm run lint && npm run typecheck && npm run test:cov",
