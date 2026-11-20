@@ -1,0 +1,62 @@
+name: Setup toolchain
+description: Install Node.js, Rust, uv and the Linux system dependencies used by CI
+
+# Composite setup shared by every CI job (T13). Node and uv are installed on
+# every operating system; the Tauri system packages are Linux-only and can be
+# skipped with `linux-deps: "false"` for jobs that do not build the app.
+
+inputs:
+  node:
+    description: Node.js version passed to actions/setup-node
+    required: false
+    default: "26"
+  rust:
+    description: Rust toolchain specification passed to dtolnay/rust-toolchain
+    required: false
+    default: stable
+  uv:
+    description: uv version (empty installs the latest release)
+    required: false
+    default: ""
+  rust-targets:
+    description: Comma-separated extra Rust targets to install
+    required: false
+    default: ""
+  linux-deps:
+    description: Whether to install the Tauri Linux system packages
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v7
+      with:
+        node-version: ${{ inputs.node }}
+        cache: npm
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: ${{ inputs.rust }}
+        components: rustfmt, clippy
+        targets: ${{ inputs.rust-targets }}
+
+    - name: Cache Rust builds
+      uses: Swatinem/rust-cache@v2
+
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        version: ${{ inputs.uv }}
+        enable-cache: true
+
+    - name: Install Linux system dependencies
+      if: runner.os == 'Linux' && inputs.linux-deps == 'true'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev \
+          libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf xdg-utils
