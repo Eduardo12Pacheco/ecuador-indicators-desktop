@@ -1,0 +1,26 @@
+.root {
+  display: inline-flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+}
+
+.item {
+  min-height: var(--hit-target);
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--text-small-size);
+  font-weight: 550;
+}
+
+.item[data-state="on"] {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-1);
+}
