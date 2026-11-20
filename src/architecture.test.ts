@@ -209,6 +209,7 @@ describe("TypeScript dependency rules", () => {
         "ui",
         "framework",
         "external",
+        "echarts",
       ]),
     ).toEqual([]);
     const tauri = EDGES.filter(

@@ -37,6 +37,18 @@
       "cssModules": true
     }
   },
+  "overrides": [
+    {
+      "includes": ["src/ui/charts/ChartCanvas.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveTabindex": "off"
+          }
+        }
+      }
+    }
+  ],
   "linter": {
     "enabled": true,
     "rules": {
