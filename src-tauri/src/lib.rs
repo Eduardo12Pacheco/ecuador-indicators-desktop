@@ -10,6 +10,7 @@ pub mod commands;
 pub mod config;
 pub mod error;
 pub mod logging;
+pub mod self_check;
 pub mod state;
 
 /// Registers the fourteen IPC commands on any Tauri runtime.
