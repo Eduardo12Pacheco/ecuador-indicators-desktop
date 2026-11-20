@@ -23,7 +23,7 @@ export function appRoutes(): RouteObject[] {
     { path: "about", element: <AboutPage /> },
   ];
 
-  if (import.meta.env.MODE !== "production") {
+  if (import.meta.env.DEV || import.meta.env.MODE === "e2e") {
     children.push({ path: "design", element: <DesignGallery /> });
   }
 

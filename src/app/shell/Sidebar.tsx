@@ -40,7 +40,7 @@ export function Sidebar({
   readonly onToggle: () => void;
 }) {
   const { t } = useT();
-  const showDesign = import.meta.env.MODE !== "production";
+  const showDesign = import.meta.env.DEV || import.meta.env.MODE === "e2e";
 
   return (
     <aside className={styles.sidebar} data-collapsed={collapsed ? "true" : "false"}>

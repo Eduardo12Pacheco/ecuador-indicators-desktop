@@ -1,8 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createFakePorts } from "../test/fake-ports";
 import { App } from "./App";
+import { appRoutes } from "./router";
 
 beforeEach(() => {
   localStorage.clear();
@@ -10,6 +11,7 @@ beforeEach(() => {
 
 afterEach(() => {
   window.location.hash = "";
+  vi.unstubAllEnvs();
 });
 
 describe("App", () => {
@@ -29,5 +31,12 @@ describe("App", () => {
     expect(
       await screen.findByRole("heading", { name: "Design system", level: 1 }),
     ).toBeInTheDocument();
+  });
+
+  it("hides the design gallery from media-capture builds", () => {
+    vi.stubEnv("DEV", false);
+    vi.stubEnv("MODE", "capture");
+    const children = appRoutes()[0]?.children ?? [];
+    expect(children.map((route) => route.path)).not.toContain("design");
   });
 });
