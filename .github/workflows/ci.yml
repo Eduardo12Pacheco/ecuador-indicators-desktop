@@ -126,6 +126,9 @@ jobs:
         with:
           linux-deps: "false"
 
+      - name: Install the LLVM tools used for instrumentation
+        run: rustup component add llvm-tools-preview
+
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@v2
         with:
