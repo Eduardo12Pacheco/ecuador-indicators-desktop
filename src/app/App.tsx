@@ -1,9 +1,16 @@
-import { APP_NAME } from "./meta";
+import { useState } from "react";
+import { RouterProvider } from "react-router";
 
-export function App() {
+import type { AppPorts } from "../core/application/ports";
+import { AppProviders } from "./providers";
+import { createAppRouter } from "./router";
+
+/** Root component: providers around the hash router. */
+export function App({ ports }: { readonly ports: AppPorts }) {
+  const [router] = useState(() => createAppRouter());
   return (
-    <main>
-      <h1>{APP_NAME}</h1>
-    </main>
+    <AppProviders ports={ports}>
+      <RouterProvider router={router} />
+    </AppProviders>
   );
 }

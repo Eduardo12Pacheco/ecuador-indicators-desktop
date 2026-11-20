@@ -6,6 +6,7 @@
 import {
   type AppInfo,
   type Catalog,
+  type DatasetInfo,
   type Geography,
   type Indicator,
   indicatorCode,
@@ -103,6 +104,26 @@ export function makeCatalog(): Catalog {
         sortOrder: 5,
       }),
     ],
+  };
+}
+
+/** Builds dataset provenance with the bundled snapshot counts. */
+export function makeDatasetInfo(overrides: Partial<DatasetInfo> = {}): DatasetInfo {
+  return {
+    schemaVersion: 1,
+    origin: "worldbank",
+    datasetId: "ecuador-indicators",
+    datasetVersion: "2026-11-20",
+    sourceName: "World Development Indicators",
+    sourcePublisher: "The World Bank",
+    sourceLastUpdated: "2026-11-11",
+    retrievedAt: "2026-11-20T07:17:18+00:00",
+    license: "CC-BY-4.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+    attributionEn: "Source: The World Bank.",
+    attributionEs: "Fuente: Banco Mundial.",
+    counts: { topics: 8, geographies: 7, indicators: 38, observations: 11780 },
+    ...overrides,
   };
 }
 
