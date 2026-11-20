@@ -66,6 +66,25 @@ meaning).
   bar 56 px, status bar 28 px, minimum hit target 32 px, focus ring 2 px with
   2 px offset.
 
+## Charts
+
+Charts are Apache ECharts 6 with only the line, bar, grid, tooltip, legend,
+ARIA, title and graphic components registered (ADR 0006). Styling is read from
+the tokens at render time: grid lines use `--color-border`, axis labels use
+`--color-text-muted` at 12 px Inter with tabular numerals, tooltips sit on
+`--color-surface` with `--shadow-2`, series are 2.5 px (Ecuador 3 px) and
+animation is `--dur-base` (0 under reduced motion). Series slots are stable:
+ECU=1, COL=2, PER=3, CHL=4, BOL=5, LCN=6 dashed, WLD=6 dotted, each with its own
+symbol (circle, square, triangle, diamond, pin, rect). Gaps are never connected.
+Exported PNGs add a title, legend and the World Bank attribution line.
+
+Every chart is a focusable `role="group"` with a computed summary. Arrow keys
+move between years that have data in the first series, Home/End jump to the
+first/last, Escape clears the tooltip, and each step updates a polite live
+region with `{geography}, {year}: {value}`. The canvas is `aria-hidden`; the
+Chart/Data table toggle always offers the same numbers in a captioned table
+where gaps render as an em dash with a visually hidden "No data" label.
+
 ## Accessibility rules
 
 - Every flow is keyboard-completable. The skip link is the first focusable
@@ -79,8 +98,8 @@ meaning).
 - Icon-only controls require a `label` prop and render `aria-label`.
 - Toasts live in a polite `role="status"` region, pause on hover/focus and can
   be dismissed with a labelled button.
-- Charts (T8) are focusable, scrubbable with arrows/Home/End/Escape and have a
-  data-table alternative; this task owns the shell and primitives only.
+- Charts are focusable, scrubbable with arrows/Home/End/Escape, announce values
+  through a polite region and have a data-table alternative (ADR 0006).
 - Axe scans the shell and the design gallery in both themes in Vitest; T11
   repeats them in a real browser for contrast and layout.
 
