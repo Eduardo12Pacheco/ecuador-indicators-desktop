@@ -19,6 +19,8 @@ export interface ChartCanvasProps {
   /** Injectable renderer factory; defaults to the ECharts adapter. */
   readonly rendererFactory?: ChartRendererFactory;
   readonly testId?: string;
+  /** Notifies the page when the renderer is created or disposed (PNG export). */
+  readonly onRendererChange?: (renderer: ChartRenderer | null) => void;
 }
 
 /**
@@ -34,6 +36,7 @@ export function ChartCanvas({
   announce,
   rendererFactory,
   testId,
+  onRendererChange,
 }: ChartCanvasProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [renderer, setRenderer] = useState<ChartRenderer | null>(null);
@@ -45,11 +48,13 @@ export function ChartCanvas({
     }
     const created = (rendererFactory ?? createEchartsRenderer)(element);
     setRenderer(created);
+    onRendererChange?.(created);
     return () => {
       created.dispose();
       setRenderer(null);
+      onRendererChange?.(null);
     };
-  }, [rendererFactory]);
+  }, [rendererFactory, onRendererChange]);
 
   useEffect(() => {
     renderer?.setOption(option);

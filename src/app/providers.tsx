@@ -4,6 +4,7 @@ import { type ReactNode, useState } from "react";
 import type { AppPorts } from "../core/application/ports";
 import { ToastProvider } from "../ui/design/primitives/Toast/Toast";
 import { ThemeProvider } from "../ui/design/ThemeProvider";
+import { ExportProvider } from "../ui/features/export/export-context";
 import { I18nProvider } from "../ui/i18n/I18nProvider";
 import { PortsProvider } from "../ui/ports-context";
 
@@ -32,7 +33,9 @@ export function AppProviders({
       <I18nProvider>
         <ThemeProvider>
           <PortsProvider ports={ports}>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              <ExportProvider>{children}</ExportProvider>
+            </ToastProvider>
           </PortsProvider>
         </ThemeProvider>
       </I18nProvider>

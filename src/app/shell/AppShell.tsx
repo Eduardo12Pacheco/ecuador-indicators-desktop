@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { listViews } from "../../core/application/use-cases/views";
 import { useTheme } from "../../ui/design/ThemeProvider";
+import { useExportActions } from "../../ui/features/export/export-context";
 import {
   CommandPalette,
   type PaletteActions,
@@ -44,6 +45,7 @@ export function AppShell() {
   const location = useLocation();
   const { t, setLang } = useT();
   const { toggle } = useTheme();
+  const exportActions = useExportActions();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [saveViewOpen, setSaveViewOpen] = useState(false);
@@ -123,8 +125,21 @@ export function AppShell() {
       stepIndicator,
       canSaveView: currentSpec !== null,
       openSaveView: () => setSaveViewOpen(true),
+      canExportCsv: exportActions.available.csv,
+      canExportPng: exportActions.available.png,
+      exportFile: exportActions.run,
     }),
-    [currentSpec, goExplore, location.pathname, navigate, platform, setLang, stepIndicator, toggle],
+    [
+      currentSpec,
+      exportActions,
+      goExplore,
+      location.pathname,
+      navigate,
+      platform,
+      setLang,
+      stepIndicator,
+      toggle,
+    ],
   );
 
   useShortcuts({ context });

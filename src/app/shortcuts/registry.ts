@@ -26,6 +26,9 @@ export interface CommandContext {
   readonly stepIndicator: (delta: 1 | -1) => void;
   readonly canSaveView: boolean;
   readonly openSaveView: () => void;
+  readonly canExportCsv: boolean;
+  readonly canExportPng: boolean;
+  readonly exportFile: (kind: "csv" | "png") => void;
 }
 
 /** A named, translated action with an optional keyboard shortcut. */
@@ -136,6 +139,24 @@ export const COMMANDS: readonly Command[] = [
     paletteGroup: "actions",
     when: (context) => context.canSaveView,
     run: (context) => context.openSaveView(),
+  },
+  {
+    id: "export-csv",
+    titleKey: "command.exportCsv",
+    keywords: ["export", "csv", "download", "exportar", "descargar"],
+    shortcut: "Mod+Shift+C",
+    paletteGroup: "actions",
+    when: (context) => context.canExportCsv,
+    run: (context) => context.exportFile("csv"),
+  },
+  {
+    id: "export-png",
+    titleKey: "command.exportPng",
+    keywords: ["export", "png", "image", "chart", "exportar", "imagen", "grafico"],
+    shortcut: "Mod+Shift+P",
+    paletteGroup: "actions",
+    when: (context) => context.canExportPng,
+    run: (context) => context.exportFile("png"),
   },
   {
     id: "previous-indicator",

@@ -1,4 +1,4 @@
-import { act, screen } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { EChartsCoreOption } from "echarts/core";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
@@ -240,6 +240,26 @@ describe("ExplorePage", () => {
     expect(await screen.findByText("database is locked")).toBeInTheDocument();
     expect(screen.getByText("STORAGE: database is locked")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+  });
+
+  it("exports the visible range as CSV from the toolbar", async () => {
+    const requests: Parameters<AppPorts["export"]["save"]>[0][] = [];
+    renderPage(
+      "/explore/NY.GDP.MKTP.CD?from=2000&to=2001",
+      ports({
+        export: {
+          save: async (request) => {
+            requests.push(request);
+            return ok("/tmp/out.csv");
+          },
+        },
+      }),
+    );
+    await screen.findByRole("heading", { name: "GDP (current US$)", level: 1 });
+    await userEvent.click(await screen.findByRole("button", { name: "Export CSV" }));
+    await waitFor(() => expect(requests).toHaveLength(1));
+    expect(requests[0]?.suggestedName).toBe("ecuador-NY.GDP.MKTP.CD-2000-2001.csv");
+    expect(String(requests[0]?.content)).toContain("ECU");
   });
 
   it("shows a loading skeleton while the catalog is pending", async () => {

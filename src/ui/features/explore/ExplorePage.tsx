@@ -16,12 +16,16 @@ import { DEFAULT_INDICATOR, type ExploreState } from "../../../core/domain/view-
 import { buildChartOption, chartYears } from "../../charts/build-chart-option";
 import { ChartCanvas } from "../../charts/ChartCanvas";
 import { chartThemeFor } from "../../charts/chart-theme";
-import type { ChartRendererFactory } from "../../charts/renderer";
+import type { ChartRenderer, ChartRendererFactory } from "../../charts/renderer";
 import { Button } from "../../design/primitives/Button/Button";
 import { SegmentedControl } from "../../design/primitives/SegmentedControl/SegmentedControl";
 import { useTheme } from "../../design/ThemeProvider";
 import { useT } from "../../i18n/useT";
 import { usePorts } from "../../ports-context";
+import { ExportMenu } from "../export/ExportMenu";
+import type { FileExportKind } from "../export/export-context";
+import { useRegisterExport } from "../export/export-context";
+import { useExport } from "../export/use-export";
 import { CatalogPanel } from "./CatalogPanel";
 import { ChartTypeControl } from "./ChartTypeControl";
 import { DataTable } from "./DataTable";
@@ -215,6 +219,14 @@ function ExploreContent({
   chartRendererFactory,
 }: ExploreContentProps) {
   const { t, lang, locale } = useT();
+  const { resolved } = useTheme();
+  const [renderer, setRenderer] = useState<ChartRenderer | null>(null);
+  const chartTheme = useMemo(() => chartThemeFor(resolved), [resolved]);
+  const exports = useExport({ model, renderer, theme: chartTheme, locale, lang });
+  useRegisterExport(
+    exports.available.csv ? exports.exportCsv : undefined,
+    exports.available.png ? exports.exportPng : undefined,
+  );
   const firstSeries = model.series[0];
   const firstYear = years[0];
   const lastYear = years[years.length - 1];
@@ -308,6 +320,13 @@ function ExploreContent({
             {t("explore.chart.title")}
           </h2>
           <div className={styles.toolbarControls}>
+            <ExportMenu
+              available={exports.available}
+              busy={exports.busy}
+              onExport={(kind: FileExportKind) => {
+                void (kind === "csv" ? exports.exportCsv() : exports.exportPng());
+              }}
+            />
             <SegmentedControl
               label={t("explore.chart.view")}
               value={view}
@@ -334,6 +353,7 @@ function ExploreContent({
             years={firstSeries?.points.map((point) => point.year) ?? []}
             announce={announce}
             testId="chart-canvas"
+            onRendererChange={setRenderer}
             {...(chartRendererFactory === undefined
               ? {}
               : { rendererFactory: chartRendererFactory })}

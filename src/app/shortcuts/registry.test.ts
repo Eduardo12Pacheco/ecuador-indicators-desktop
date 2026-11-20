@@ -24,6 +24,9 @@ function context(overrides: Partial<CommandContext> = {}): CommandContext {
     stepIndicator: () => undefined,
     canSaveView: false,
     openSaveView: () => undefined,
+    canExportCsv: false,
+    canExportPng: false,
+    exportFile: () => undefined,
     ...overrides,
   };
 }

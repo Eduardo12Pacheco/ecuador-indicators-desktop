@@ -247,4 +247,13 @@ export const es: Messages = {
   "saveView.limit": "Llegaste al límite de 200 vistas guardadas. Elimina una primero.",
   "saveView.error": "No se pudo guardar la vista.",
   "command.saveView": "Guardar la vista actual",
+  "export.menu": "Exportar",
+  "export.csv": "Exportar CSV",
+  "export.png": "Exportar PNG",
+  "export.unavailable": "No hay nada visible para exportar en esta página.",
+  "export.saved": "Guardado en {path}",
+  "export.downloadStarted": "Descarga iniciada",
+  "export.failed": "La exportación falló",
+  "command.exportCsv": "Exportar los datos visibles como CSV",
+  "command.exportPng": "Exportar el gráfico como PNG",
 };

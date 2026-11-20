@@ -247,6 +247,15 @@ export const en = {
   "saveView.limit": "You reached the limit of 200 saved views. Delete one first.",
   "saveView.error": "The view could not be saved.",
   "command.saveView": "Save current view",
+  "export.menu": "Export",
+  "export.csv": "Export CSV",
+  "export.png": "Export PNG",
+  "export.unavailable": "There is nothing visible to export on this page.",
+  "export.saved": "Saved to {path}",
+  "export.downloadStarted": "Download started",
+  "export.failed": "The export failed",
+  "command.exportCsv": "Export the visible data as CSV",
+  "command.exportPng": "Export the chart as PNG",
 } as const;
 
 /** Every message key, derived from the English dictionary. */

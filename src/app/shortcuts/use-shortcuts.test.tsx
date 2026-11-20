@@ -57,6 +57,9 @@ function spies(overrides: Partial<CommandContext> = {}): Spies {
       stepIndicator,
       canSaveView: false,
       openSaveView: () => undefined,
+      canExportCsv: false,
+      canExportPng: false,
+      exportFile: () => undefined,
       ...overrides,
     },
   };
