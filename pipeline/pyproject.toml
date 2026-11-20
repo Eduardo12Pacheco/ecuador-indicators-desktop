@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ecuador-data"
+version = "0.1.0"
+description = "Reproducible World Bank WDI pipeline for Ecuador Indicators"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Eduardo Pacheco" }]
+dependencies = ["typer>=0.29.2"]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.4",
+  "pytest-cov>=7.0",
+  "hypothesis>=6.140",
+  "respx>=0.22",
+  "mypy>=1.18",
+  "ruff>=0.14",
+  "import-linter>=2.7",
+  "pip-audit>=2.9",
+]
+
+[project.scripts]
+ecuador-data = "ecuador_data.cli:app"
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ecuador_data"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "PL", "RUF", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=ecuador_data --cov-report=term-missing --cov-fail-under=85"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+omit = ["*/__main__.py"]
