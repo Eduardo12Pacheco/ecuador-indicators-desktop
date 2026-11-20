@@ -162,8 +162,8 @@ la revisión de licencias y los dos proyectos de Playwright. Consulta
 
 ## Documentación
 
-[Arquitectura](docs/ARCHITECTURE.md) · [Datos](docs/DATA.md) ·
-[Diseño](docs/DESIGN.md) · [Tests](docs/TESTING.md) ·
+[Arquitectura](docs/ARCHITECTURE.md) · [Configuración](docs/ARCHITECTURE.md#configuration) ·
+[Datos](docs/DATA.md) · [Diseño](docs/DESIGN.md) · [Tests](docs/TESTING.md) ·
 [Instalación](docs/INSTALL.md) · [Publicación](docs/RELEASING.md) ·
 [Manifiesto lakehouse](docs/LAKEHOUSE-MANIFEST.md) ·
 [Contribuir](CONTRIBUTING.md) · [Seguridad](SECURITY.md) ·

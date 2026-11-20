@@ -204,6 +204,30 @@ unexpected error, `2` integrity/validation failure (`IntegrityError`,
 - The update check is opt-in, throttled to one check per 24 hours at launch and
   never downloads or installs anything. `ReleaseFeed` is the only network port.
 
+## Configuration
+
+Both runtimes use typed settings. The desktop reads `ECUADOR_INDICATORS_*`
+through `src-tauri/src/config.rs`; the pipeline reads `ECUADOR_DATA_*` through
+`pipeline/src/ecuador_data/settings.py` (pydantic-settings, prefix
+`ECUADOR_DATA_`). Unknown values fall back to the documented defaults rather
+than crashing the app.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `ECUADOR_INDICATORS_HOME` | platform app-data dir | Overrides where `user.db` and settings live. |
+| `ECUADOR_INDICATORS_LOG` | `info` | Tracing filter/log level; rolling files stay in the platform app-log dir. |
+| `ECUADOR_INDICATORS_SNAPSHOT` | bundled resource | Opens a specific snapshot at launch; authoritative over the remembered custom path. |
+| `ECUADOR_INDICATORS_UPDATE_URL` | GitHub latest-release API | Overrides the release feed, used by tests and offline mirrors. |
+| `ECUADOR_DATA_DATA_DIR` | repository `data/` (or `./data` for an installed wheel) | Raw cache, manifest and snapshot root. |
+| `ECUADOR_DATA_HTTP_TIMEOUT_S` | `30` | Per-request timeout for the World Bank adapter. |
+| `ECUADOR_DATA_HTTP_RETRIES` | `4` | Attempts before `SourceUnavailableError`. |
+| `ECUADOR_DATA_USER_AGENT` | `ecuador-data/<version>` | Descriptive User-Agent sent to the API. |
+| `ECUADOR_DATA_LOG_LEVEL` | `info` | structlog level for the pipeline. |
+
+The same values appear in `docs/INSTALL.md` (desktop paths) and
+`pipeline/README.md` (pipeline usage); `src-tauri/src/config.rs` and
+`pipeline/tests/unit/test_settings.py` keep the defaults under test.
+
 ## Data pipeline
 
 ```mermaid
