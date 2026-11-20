@@ -1,0 +1,431 @@
+# Curated topic list for the Ecuador Indicators catalog.
+
+[[topic]]
+id = "economy"
+name_en = "Economy & prices"
+name_es = "Economía y precios"
+sort_order = 1
+
+[[topic]]
+id = "trade"
+name_en = "Trade & investment"
+name_es = "Comercio e inversión"
+sort_order = 2
+
+[[topic]]
+id = "labour"
+name_en = "Labour & poverty"
+name_es = "Trabajo y pobreza"
+sort_order = 3
+
+[[topic]]
+id = "society"
+name_en = "Population & society"
+name_es = "Población y sociedad"
+sort_order = 4
+
+[[topic]]
+id = "health"
+name_en = "Health"
+name_es = "Salud"
+sort_order = 5
+
+[[topic]]
+id = "education"
+name_en = "Education"
+name_es = "Educación"
+sort_order = 6
+
+[[topic]]
+id = "environment"
+name_en = "Environment & energy"
+name_es = "Ambiente y energía"
+sort_order = 7
+
+[[topic]]
+id = "digital"
+name_en = "Digital access"
+name_es = "Acceso digital"
+sort_order = 8
+
+# 38 curated indicators in catalog order.
+
+[[indicator]]
+code = "NY.GDP.MKTP.CD"
+topic = "economy"
+value_kind = "currency"
+decimals = 0
+higher_is = "better"
+unit_en = "current US$"
+unit_es = "US$ corrientes"
+sort_order = 1
+
+[[indicator]]
+code = "NY.GDP.MKTP.KD.ZG"
+topic = "economy"
+value_kind = "percent"
+decimals = 1
+higher_is = "better"
+unit_en = "% per year"
+unit_es = "% anual"
+sort_order = 2
+
+[[indicator]]
+code = "NY.GDP.PCAP.CD"
+topic = "economy"
+value_kind = "currency"
+decimals = 0
+higher_is = "better"
+unit_en = "current US$"
+unit_es = "US$ corrientes"
+sort_order = 3
+
+[[indicator]]
+code = "NY.GDP.PCAP.PP.CD"
+topic = "economy"
+value_kind = "currency"
+decimals = 0
+higher_is = "better"
+unit_en = "current international $"
+unit_es = "$ internacionales corrientes"
+sort_order = 4
+
+[[indicator]]
+code = "FP.CPI.TOTL.ZG"
+topic = "economy"
+value_kind = "percent"
+decimals = 1
+higher_is = "worse"
+unit_en = "% per year"
+unit_es = "% anual"
+sort_order = 5
+
+[[indicator]]
+code = "NE.EXP.GNFS.ZS"
+topic = "trade"
+value_kind = "percent"
+decimals = 1
+higher_is = "neutral"
+unit_en = "% of GDP"
+unit_es = "% del PIB"
+sort_order = 6
+
+[[indicator]]
+code = "NE.IMP.GNFS.ZS"
+topic = "trade"
+value_kind = "percent"
+decimals = 1
+higher_is = "neutral"
+unit_en = "% of GDP"
+unit_es = "% del PIB"
+sort_order = 7
+
+[[indicator]]
+code = "TX.VAL.FUEL.ZS.UN"
+topic = "trade"
+value_kind = "percent"
+decimals = 1
+higher_is = "neutral"
+unit_en = "% of merchandise exports"
+unit_es = "% de las exportaciones de mercancías"
+sort_order = 8
+
+[[indicator]]
+code = "BX.KLT.DINV.WD.GD.ZS"
+topic = "trade"
+value_kind = "percent"
+decimals = 2
+higher_is = "better"
+unit_en = "% of GDP"
+unit_es = "% del PIB"
+sort_order = 9
+
+[[indicator]]
+code = "BX.TRF.PWKR.DT.GD.ZS"
+topic = "trade"
+value_kind = "percent"
+decimals = 2
+higher_is = "neutral"
+unit_en = "% of GDP"
+unit_es = "% del PIB"
+sort_order = 10
+
+[[indicator]]
+code = "SL.UEM.TOTL.ZS"
+topic = "labour"
+value_kind = "percent"
+decimals = 1
+higher_is = "worse"
+unit_en = "% of labor force"
+unit_es = "% de la fuerza laboral"
+sort_order = 11
+
+[[indicator]]
+code = "SL.TLF.CACT.ZS"
+topic = "labour"
+value_kind = "percent"
+decimals = 1
+higher_is = "neutral"
+unit_en = "% of population 15+"
+unit_es = "% de la población de 15+"
+sort_order = 12
+
+[[indicator]]
+code = "SL.TLF.CACT.FE.ZS"
+topic = "labour"
+value_kind = "percent"
+decimals = 1
+higher_is = "neutral"
+unit_en = "% of female population 15+"
+unit_es = "% de la población femenina de 15+"
+sort_order = 13
+
+[[indicator]]
+code = "SL.EMP.VULN.ZS"
+topic = "labour"
+value_kind = "percent"
+decimals = 1
+higher_is = "worse"
+unit_en = "% of total employment"
+unit_es = "% del empleo total"
+sort_order = 14
+
+[[indicator]]
+code = "SI.POV.NAHC"
+topic = "labour"
+value_kind = "percent"
+decimals = 1
+higher_is = "worse"
+unit_en = "% of population"
+unit_es = "% de la población"
+sort_order = 15
+
+[[indicator]]
+code = "SI.POV.DDAY"
+topic = "labour"
+value_kind = "percent"
+decimals = 1
+higher_is = "worse"
+unit_en = "% of population"
+unit_es = "% de la población"
+sort_order = 16
+
+[[indicator]]
+code = "SI.POV.GINI"
+topic = "labour"
+value_kind = "number"
+decimals = 1
+higher_is = "worse"
+unit_en = "index 0-100"
+unit_es = "índice 0-100"
+sort_order = 17
+
+[[indicator]]
+code = "SI.DST.FRST.20"
+topic = "labour"
+value_kind = "percent"
+decimals = 1
+higher_is = "better"
+unit_en = "% of income"
+unit_es = "% del ingreso"
+sort_order = 18
+
+[[indicator]]
+code = "SP.POP.TOTL"
+topic = "society"
+value_kind = "number"
+decimals = 0
+higher_is = "neutral"
+unit_en = "people"
+unit_es = "personas"
+sort_order = 19
+
+[[indicator]]
+code = "SP.POP.GROW"
+topic = "society"
+value_kind = "percent"
+decimals = 2
+higher_is = "neutral"
+unit_en = "% per year"
+unit_es = "% anual"
+sort_order = 20
+
+[[indicator]]
+code = "SP.URB.TOTL.IN.ZS"
+topic = "society"
+value_kind = "percent"
+decimals = 1
+higher_is = "neutral"
+unit_en = "% of population"
+unit_es = "% de la población"
+sort_order = 21
+
+[[indicator]]
+code = "SP.DYN.LE00.IN"
+topic = "society"
+value_kind = "years"
+decimals = 1
+higher_is = "better"
+unit_en = "years"
+unit_es = "años"
+sort_order = 22
+
+[[indicator]]
+code = "SP.DYN.TFRT.IN"
+topic = "society"
+value_kind = "number"
+decimals = 2
+higher_is = "neutral"
+unit_en = "births per woman"
+unit_es = "nacimientos por mujer"
+sort_order = 23
+
+[[indicator]]
+code = "SP.POP.65UP.TO.ZS"
+topic = "society"
+value_kind = "percent"
+decimals = 1
+higher_is = "neutral"
+unit_en = "% of population"
+unit_es = "% de la población"
+sort_order = 24
+
+[[indicator]]
+code = "VC.IHR.PSRC.P5"
+topic = "society"
+value_kind = "rate"
+decimals = 1
+higher_is = "worse"
+unit_en = "per 100,000 people"
+unit_es = "por cada 100.000 personas"
+sort_order = 25
+
+[[indicator]]
+code = "SH.DYN.MORT"
+topic = "health"
+value_kind = "rate"
+decimals = 1
+higher_is = "worse"
+unit_en = "per 1,000 live births"
+unit_es = "por cada 1.000 nacidos vivos"
+sort_order = 26
+
+[[indicator]]
+code = "SH.XPD.CHEX.GD.ZS"
+topic = "health"
+value_kind = "percent"
+decimals = 1
+higher_is = "better"
+unit_en = "% of GDP"
+unit_es = "% del PIB"
+sort_order = 27
+
+[[indicator]]
+code = "SH.H2O.SMDW.ZS"
+topic = "health"
+value_kind = "percent"
+decimals = 1
+higher_is = "better"
+unit_en = "% of population"
+unit_es = "% de la población"
+sort_order = 28
+
+[[indicator]]
+code = "SH.STA.MMRT"
+topic = "health"
+value_kind = "rate"
+decimals = 0
+higher_is = "worse"
+unit_en = "per 100,000 live births"
+unit_es = "por cada 100.000 nacidos vivos"
+sort_order = 29
+
+[[indicator]]
+code = "SE.ADT.LITR.ZS"
+topic = "education"
+value_kind = "percent"
+decimals = 1
+higher_is = "better"
+unit_en = "% of people 15+"
+unit_es = "% de las personas de 15+"
+sort_order = 30
+
+[[indicator]]
+code = "SE.SEC.ENRR"
+topic = "education"
+value_kind = "percent"
+decimals = 1
+higher_is = "better"
+unit_en = "% gross"
+unit_es = "% bruto"
+sort_order = 31
+
+[[indicator]]
+code = "SE.XPD.TOTL.GD.ZS"
+topic = "education"
+value_kind = "percent"
+decimals = 1
+higher_is = "better"
+unit_en = "% of GDP"
+unit_es = "% del PIB"
+sort_order = 32
+
+[[indicator]]
+code = "EN.GHG.CO2.PC.CE.AR5"
+topic = "environment"
+value_kind = "number"
+decimals = 2
+higher_is = "neutral"
+unit_en = "t CO2e per person"
+unit_es = "t CO2e por persona"
+sort_order = 33
+
+[[indicator]]
+code = "AG.LND.FRST.ZS"
+topic = "environment"
+value_kind = "percent"
+decimals = 1
+higher_is = "neutral"
+unit_en = "% of land area"
+unit_es = "% de la superficie terrestre"
+sort_order = 34
+
+[[indicator]]
+code = "EG.ELC.RNEW.ZS"
+topic = "environment"
+value_kind = "percent"
+decimals = 1
+higher_is = "better"
+unit_en = "% of electricity output"
+unit_es = "% de la producción de electricidad"
+sort_order = 35
+
+[[indicator]]
+code = "EG.ELC.ACCS.ZS"
+topic = "environment"
+value_kind = "percent"
+decimals = 1
+higher_is = "better"
+unit_en = "% of population"
+unit_es = "% de la población"
+sort_order = 36
+
+[[indicator]]
+code = "IT.NET.USER.ZS"
+topic = "digital"
+value_kind = "percent"
+decimals = 1
+higher_is = "better"
+unit_en = "% of population"
+unit_es = "% de la población"
+sort_order = 37
+
+[[indicator]]
+code = "IT.CEL.SETS.P2"
+topic = "digital"
+value_kind = "rate"
+decimals = 1
+higher_is = "neutral"
+unit_en = "per 100 people"
+unit_es = "por cada 100 personas"
+sort_order = 38
