@@ -2,7 +2,10 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, Outlet, RouterProvider, useLocation } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { appError } from "../../core/domain/errors";
+import { err, ok } from "../../core/domain/result";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { makeDatasetInfo } from "../../test/factories";
 import { createFakePorts } from "../../test/fake-ports";
 import { applyTheme } from "../../ui/design/theme";
 import { AppProviders } from "../providers";
@@ -174,6 +177,37 @@ describe("AppShell global shortcuts", () => {
     await userEvent.keyboard("e");
     expect(
       await screen.findByRole("heading", { name: "GDP (current US$)", level: 1 }),
+    ).toBeInTheDocument();
+  });
+});
+
+describe("AppShell dataset failure", () => {
+  it("shows the dataset problem screen and recovers on reset", async () => {
+    let failing = true;
+    const base = createFakePorts();
+    const ports = createFakePorts({
+      dataset: {
+        ...base.dataset,
+        getInfo: async () =>
+          failing ? err(appError("SNAPSHOT_INVALID", "bad file")) : ok(makeDatasetInfo()),
+        resetSnapshot: async () => {
+          failing = false;
+          return ok(makeDatasetInfo());
+        },
+      },
+    });
+    const router = createMemoryRouter([{ element: <Outlet />, children: appRoutes() }], {
+      initialEntries: ["/explore/NY.GDP.MKTP.CD"],
+    });
+    render(
+      <AppProviders ports={ports}>
+        <RouterProvider router={router} />
+      </AppProviders>,
+    );
+    expect(await screen.findByRole("heading", { name: "Dataset problem" })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Reset to bundled snapshot" }));
+    expect(
+      await screen.findByRole("navigation", { name: "Primary navigation" }),
     ).toBeInTheDocument();
   });
 });

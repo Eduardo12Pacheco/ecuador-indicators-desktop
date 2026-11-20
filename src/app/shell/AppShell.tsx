@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { listViews } from "../../core/application/use-cases/views";
 import { useTheme } from "../../ui/design/ThemeProvider";
+import { SnapshotProblemScreen } from "../../ui/features/about/SnapshotProblemScreen";
 import { useExportActions } from "../../ui/features/export/export-context";
 import {
   CommandPalette,
@@ -102,6 +103,16 @@ export function AppShell() {
     () => new URLSearchParams(location.search).get("view"),
     [location.search],
   );
+  const datasetInfoQuery = useQuery({
+    queryKey: ["dataset", "info"],
+    queryFn: () => ports.dataset.getInfo(),
+  });
+  const fatalDatasetError =
+    datasetInfoQuery.data?.ok === false &&
+    (datasetInfoQuery.data.error.code === "SNAPSHOT_INVALID" ||
+      datasetInfoQuery.data.error.code === "SNAPSHOT_NOT_FOUND")
+      ? datasetInfoQuery.data.error
+      : null;
   const viewsQuery = useQuery({
     queryKey: ["views", "list"],
     queryFn: () => listViews(ports.views),
@@ -211,6 +222,10 @@ export function AppShell() {
     }),
     [context, location.pathname, location.search, navigate],
   );
+
+  if (fatalDatasetError !== null) {
+    return <SnapshotProblemScreen error={fatalDatasetError} />;
+  }
 
   return (
     <div className={styles.app}>
