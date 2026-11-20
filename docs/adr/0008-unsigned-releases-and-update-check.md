@@ -83,7 +83,7 @@ Evidence checked on 2026-11-19:
   `UpdateGateway` port. The UI already treats "available" and "up to date" as
   display-only states, so the change is confined to the adapter.
 
-## Alternatives considered
+## Alternatives
 
 - **Buy certificates and notarize now.** Rejected: cost, identity verification
   and secret custody are out of scope for a portfolio project, and the plan's

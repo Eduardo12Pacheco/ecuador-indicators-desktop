@@ -25,7 +25,7 @@ for component tests against a fake renderer instead.
   implements it with a `ResizeObserver` and a DPR-aware canvas. Components take
   an injected factory, so tests use `FakeChartRenderer` and never need a canvas
   implementation.
-- **Pure option builders.** `build-chart-option.ts` takes the `ExploreModel`, a
+- **Pure option builders.** `build-chart-option.ts` takes the explore model, a
   resolved `ChartTheme` and a locale, and returns the option object. Export mode
   adds the title, legend and attribution footer. `chart-theme.ts` reads the
   design tokens from the document and falls back to the D9 palettes when the
