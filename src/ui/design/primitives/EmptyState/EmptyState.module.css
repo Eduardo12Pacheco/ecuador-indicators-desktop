@@ -1,0 +1,24 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.icon {
+  color: var(--color-text-muted);
+}
+
+.title {
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-line);
+}
+
+.description {
+  color: var(--color-text-muted);
+  max-width: 60ch;
+}
