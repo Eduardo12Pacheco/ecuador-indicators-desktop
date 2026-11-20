@@ -1,0 +1,48 @@
+# cargo-deny configuration (T13, S32).
+#
+# - advisories: fail on vulnerable and yanked crates.
+# - licenses: production dependencies must use a permissive or weak-copyleft
+#   license from the allowlist below.
+# - bans: warn on duplicate major versions instead of failing, because the
+#   Tauri ecosystem routinely pins several compatible versions.
+# - sources: only crates.io is allowed; any git dependency needs an explicit
+#   entry here.
+
+[graph]
+all-features = true
+
+[advisories]
+version = 2
+yanked = "deny"
+ignore = []
+
+[licenses]
+version = 2
+allow = [
+  "MIT",
+  "CDLA-Permissive-2.0",
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "Unicode-3.0",
+  "Zlib",
+  "MPL-2.0",
+  "CC0-1.0",
+  "0BSD",
+  "BSL-1.0",
+]
+confidence-threshold = 0.9
+
+[bans]
+multiple-versions = "warn"
+# Local workspace path dependencies carry no version requirement.
+wildcards = "allow"
+highlight = "all"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
