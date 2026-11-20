@@ -1,7 +1,31 @@
 # Third-party notices
 
 Ecuador Indicators is MIT licensed (see `LICENSE`). It redistributes the
-following third-party data and assets.
+following third-party data, fonts and dependencies.
+
+## Application dependencies
+
+No third-party application source code is vendored into this repository. The
+following packages are installed from their language registries at build time
+and remain under their own licences:
+
+| Ecosystem | Notable packages | Licence |
+|---|---|---|
+| npm (production) | React, React DOM, react-router, TanStack Query, zod, cmdk, lucide-react, Radix packages | MIT, ISC, Apache-2.0 or BSD-3-Clause |
+| npm (production) | Apache ECharts | Apache-2.0 |
+| Rust | Tauri, serde, rusqlite, ureq, ts-rs, tracing, thiserror, sha2, semver, uuid | MIT, Apache-2.0, BSD-3-Clause, ISC, Unicode-3.0, Zlib, MPL-2.0, CC0-1.0, 0BSD, BSL-1.0, CDLA-Permissive-2.0 |
+| Python (runtime) | httpx | BSD-3-Clause |
+| Python (runtime) | pydantic, pydantic-settings, typer | MIT |
+| Python (runtime) | structlog | MIT or Apache-2.0 |
+| Python (optional lakehouse) | duckdb | MIT |
+| Python (development) | pytest, Hypothesis, respx, ruff, mypy, import-linter, pip-audit, Pillow | MIT, Apache-2.0, BSD-3-Clause, HPND |
+
+`npm run check:licenses` restricts production npm dependencies to an allowlist;
+`cargo deny check licenses` enforces the Rust allowlist; `uv` lockfiles pin the
+Python tree. Run those commands for the exact resolved inventory. The MIT,
+Apache-2.0, BSD and ISC texts are the standard upstream texts and are not
+duplicated here; the copyright notices live in each package's `LICENSE` file.
+
 
 ## Data: World Bank World Development Indicators
 
