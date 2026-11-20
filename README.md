@@ -106,7 +106,7 @@ tested in all three languages; see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | Python pipeline coverage | 96.1% |
 | Browser E2E | 126 tests (Chromium + WebKit) |
 | Rust core line coverage | 85% CI gate (`cargo llvm-cov`) |
-| JavaScript gzip total | 407,429 B |
+| JavaScript gzip total | 391,882 B |
 | Bundled snapshot | 38 indicators · 8 topics · 7 geographies · 11,780 observations |
 
 `npm run metrics` prints every value above from the committed build and test

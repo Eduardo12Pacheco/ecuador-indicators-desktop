@@ -137,7 +137,7 @@ The port definitions are in `src/core/application/ports.ts`,
 sequenceDiagram
   autonumber
   participant UI as Explore page
-  participant UC as loadExploreModel (TS)
+  participant UC as Explore use case (TS)
   participant GW as DatasetRepository (Tauri gateway)
   participant CMD as dataset_observations command
   participant SVC as DatasetService (Rust)

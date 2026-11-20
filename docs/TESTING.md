@@ -126,7 +126,7 @@ Numbers measured on v0.1.0 (2026-11-20):
 | Python pipeline coverage | 96.1% | `uv run pytest` → `pipeline/coverage.json` |
 | Browser E2E tests | 126 passed (63 Chromium + 63 WebKit) | `npm run test:e2e` → `.generated/playwright.json` |
 | Rust `indicators-core` lines | 85% gate in CI | `cargo llvm-cov --fail-under-lines 85` |
-| JavaScript gzip total | 407,429 B (budget 716,800 B) | `npm run build` + `node scripts/check-bundle-size.mjs` |
+| JavaScript gzip total | 391,882 B (budget 716,800 B) | `npm run build` + `node scripts/check-bundle-size.mjs` |
 | Snapshot | 38 indicators, 8 topics, 7 geographies, 11,780 observations | `data/MANIFEST.json` |
 
 `npm run metrics` prints the same values as JSON. The Rust number is a declared

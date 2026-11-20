@@ -123,7 +123,7 @@ patrones y el modelo de errores.
 | Cobertura del pipeline Python | 96.1% |
 | E2E de navegador | 126 tests (Chromium + WebKit) |
 | Cobertura de líneas del núcleo Rust | 85% de puerta en CI (`cargo llvm-cov`) |
-| Total gzip de JavaScript | 407,429 B |
+| Total gzip de JavaScript | 391,882 B |
 | Instantánea incluida | 38 indicadores · 8 temas · 7 geografías · 11,780 observaciones |
 
 `npm run metrics` imprime cada valor anterior desde los artefactos versionados
