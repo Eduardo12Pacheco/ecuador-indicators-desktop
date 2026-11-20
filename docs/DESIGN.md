@@ -89,8 +89,12 @@ the tokens at render time: grid lines use `--color-border`, axis labels use
 `--color-surface` with `--shadow-2`, series are 2.5 px (Ecuador 3 px) and
 animation is `--dur-base` (0 under reduced motion). Series slots are stable:
 ECU=1, COL=2, PER=3, CHL=4, BOL=5, LCN=6 dashed, WLD=6 dotted, each with its own
-symbol (circle, square, triangle, diamond, pin, rect). Gaps are never connected.
-Exported PNGs add a title, legend and the World Bank attribution line.
+symbol (circle, square, triangle, diamond, pin, rect), and the live chart shows a
+legend with that dash and symbol key so no line is identified by color alone.
+Gaps are never connected. Axis, tooltip, KPI and table values follow the active
+transform: the level keeps the indicator's own unit, year-over-year change is a
+percentage and an index is a plain number (base year = 100). Exported PNGs add a
+title, a legend and the World Bank attribution line.
 
 Every chart is a focusable `role="group"` with a computed summary. Arrow keys
 move between years that have data in the first series, Home/End jump to the

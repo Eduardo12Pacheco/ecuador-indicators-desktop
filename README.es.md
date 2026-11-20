@@ -9,10 +9,10 @@ Una aplicación de escritorio pulida y offline-first para explorar, comparar y
 exportar indicadores económicos y sociales del Ecuador desde una instantánea
 de datos del Banco Mundial incluida con la aplicación.
 
-**Instalación:** descarga el instalador más reciente para Windows, macOS o Linux
-y lee primero la [guía de instalación](docs/INSTALL.md). Las compilaciones no
-están firmadas, así que Windows SmartScreen y macOS Gatekeeper pedirán
-confirmación.
+**Instalación:** lee primero la [guía de instalación](docs/INSTALL.md); las
+compilaciones no están firmadas, así que Windows SmartScreen y macOS Gatekeeper
+pedirán confirmación. El primer release etiquetado está pendiente; mientras
+tanto, [ejecútalo desde el código fuente](#desarrollo).
 
 ![Recorrido animado por Ecuador Indicators](docs/media/hero.gif)
 
@@ -119,16 +119,16 @@ patrones y el modelo de errores.
 
 | Puerta | Valor medido |
 |---|---|
-| Cobertura TypeScript | 91.49% líneas · 83.39% ramas · 91.48% sentencias · 91.28% funciones |
+| Cobertura TypeScript | 91.67% líneas · 83.82% ramas · 91.64% sentencias · 91.57% funciones |
 | Cobertura del pipeline Python | 96.1% |
-| E2E de navegador | 126 tests (Chromium + WebKit) |
-| Cobertura de líneas del núcleo Rust | 85% de puerta en CI (`cargo llvm-cov`) |
-| Total gzip de JavaScript | 391,882 B |
+| E2E de navegador | 68 escenarios (proyectos Chromium + WebKit) |
+| Cobertura de líneas del núcleo Rust | 92.1% (puerta en CI: 85%, `cargo llvm-cov`) |
+| Total gzip de JavaScript | 392,300 B |
 | Instantánea incluida | 38 indicadores · 8 temas · 7 geografías · 11,780 observaciones |
 
-`npm run metrics` imprime cada valor anterior desde los artefactos versionados
-de build y tests. El presupuesto gzip es 716,800 B y la suite E2E nativa corre
-en Linux dentro de CI.
+`npm run metrics` imprime cada valor anterior salvo el de Rust, que sale de
+`cargo llvm-cov -p indicators-core`. El presupuesto gzip es 716,800 B y la suite
+E2E nativa corre en Linux dentro de CI.
 
 ## Desarrollo
 

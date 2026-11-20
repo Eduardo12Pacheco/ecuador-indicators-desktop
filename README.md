@@ -8,9 +8,9 @@
 A polished, offline-first desktop app for exploring, comparing and exporting
 Ecuadorian indicators from a bundled World Bank snapshot.
 
-**Install:** download the latest installer and read the
-[installation guide](docs/INSTALL.md) first; the builds are unsigned, so
-SmartScreen and Gatekeeper will ask for confirmation.
+**Install:** read the [installation guide](docs/INSTALL.md) first; builds are
+unsigned, so SmartScreen and Gatekeeper ask for confirmation. The first tagged
+release is pending; until then, [run it from source](#development).
 
 ![Animated tour of Ecuador Indicators](docs/media/hero.gif)
 
@@ -102,16 +102,16 @@ tested in all three languages; see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 | Gate | Measured value |
 |---|---|
-| TypeScript coverage | 91.49% lines · 83.39% branches · 91.48% statements · 91.28% functions |
+| TypeScript coverage | 91.67% lines · 83.82% branches · 91.64% statements · 91.57% functions |
 | Python pipeline coverage | 96.1% |
-| Browser E2E | 126 tests (Chromium + WebKit) |
-| Rust core line coverage | 85% CI gate (`cargo llvm-cov`) |
-| JavaScript gzip total | 391,882 B |
+| Browser E2E | 68 scenarios (Chromium + WebKit projects) |
+| Rust core line coverage | 92.1% (CI gate: 85%, `cargo llvm-cov`) |
+| JavaScript gzip total | 392,300 B |
 | Bundled snapshot | 38 indicators · 8 topics · 7 geographies · 11,780 observations |
 
-`npm run metrics` prints every value above from the committed build and test
-artifacts. The gzip budget is 716,800 B and the native E2E suite runs on Linux
-in CI.
+`npm run metrics` prints every value above except the Rust figure, which comes
+from `cargo llvm-cov -p indicators-core`. The gzip budget is 716,800 B and the
+native E2E suite runs on Linux in CI.
 
 ## Development
 
