@@ -18,6 +18,7 @@ import {
   makeDatasetInfo,
   makeGeography,
   makeIndicator,
+  makeSettings,
 } from "../../../test/factories";
 import { FakeChartRenderer } from "../../../test/fake-chart-renderer";
 import { renderWithProviders } from "../../../test/render";
@@ -170,7 +171,7 @@ function ports(overrides: Partial<AppPorts> = {}): AppPorts {
       remove: async () => ok(undefined),
     },
     settings: {
-      get: async () => ok({} as never),
+      get: async () => ok(makeSettings()),
       set: async () => ok(undefined),
     },
     export: { save: async () => ok("/tmp/export.csv") },

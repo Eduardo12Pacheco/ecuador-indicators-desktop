@@ -4,6 +4,7 @@
 
 import type { AppPorts, ExportRequest } from "../core/application/ports";
 import { ok, type Result } from "../core/domain/result";
+import { readStoredLang } from "../ui/i18n/i18n";
 import { makeAppInfo, makeCatalog, makeDatasetInfo, makeSettings } from "./factories";
 
 function resolved<T>(value: T): Promise<Result<T>> {
@@ -41,7 +42,7 @@ export function createFakePorts(overrides: Partial<AppPorts> = {}): AppPorts {
       remove: () => resolved(undefined),
     },
     settings: {
-      get: () => resolved(makeSettings()),
+      get: () => resolved(makeSettings({ language: readStoredLang() ?? "system" })),
       set: () => resolved(undefined),
     },
     export: {

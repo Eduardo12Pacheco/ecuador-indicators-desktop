@@ -11,6 +11,7 @@ import {
 } from "../../ui/features/palette/CommandPalette";
 import { viewSpecPath } from "../../ui/features/palette/commands";
 import { type ShortcutEntry, ShortcutsDialog } from "../../ui/features/palette/ShortcutsDialog";
+import { useAutoUpdateCheck } from "../../ui/features/settings/use-auto-update-check";
 import { SaveViewDialog } from "../../ui/features/views/SaveViewDialog";
 import { locationToViewSpec } from "../../ui/features/views/view-location";
 import { useT } from "../../ui/i18n/useT";
@@ -46,6 +47,7 @@ export function AppShell() {
   const { t, setLang } = useT();
   const { toggle } = useTheme();
   const exportActions = useExportActions();
+  useAutoUpdateCheck();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [saveViewOpen, setSaveViewOpen] = useState(false);

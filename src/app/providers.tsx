@@ -7,6 +7,7 @@ import { ThemeProvider } from "../ui/design/ThemeProvider";
 import { ExportProvider } from "../ui/features/export/export-context";
 import { I18nProvider } from "../ui/i18n/I18nProvider";
 import { PortsProvider } from "../ui/ports-context";
+import { SettingsSync } from "./SettingsSync";
 
 /**
  * Composition root for UI-wide context: async cache, language, theme, ports
@@ -33,6 +34,7 @@ export function AppProviders({
       <I18nProvider>
         <ThemeProvider>
           <PortsProvider ports={ports}>
+            <SettingsSync />
             <ToastProvider>
               <ExportProvider>{children}</ExportProvider>
             </ToastProvider>
