@@ -17,7 +17,8 @@
       "*.mjs",
       "!package-lock.json",
       "!coverage",
-      "!dist"
+      "!dist",
+      "!src/adapters/tauri/generated"
     ]
   },
   "formatter": {
