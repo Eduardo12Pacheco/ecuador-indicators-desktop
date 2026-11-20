@@ -1,0 +1,17 @@
+/target
+node_modules
+dist
+coverage
+playwright-report
+test-results
+.generated
+public/__fixture__
+.venv
+__pycache__
+*.tsbuildinfo
+src-tauri/gen
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov

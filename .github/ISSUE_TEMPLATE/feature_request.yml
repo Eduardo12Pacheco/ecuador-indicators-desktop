@@ -1,0 +1,40 @@
+name: Feature request
+description: Propose a product or engineering improvement.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user or engineering problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the expected behavior and alternatives considered.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Explore
+        - Compare
+        - Saved views
+        - Settings
+        - Data and about
+        - Data pipeline
+        - Tooling and CI
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Constraints
+      description: Anything that must stay offline, local-first or license-compatible.
+    validations:
+      required: false

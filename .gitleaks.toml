@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Published snapshot checksums and generated documentation media are not secrets."
+paths = ['''data/MANIFEST\.json''', '''docs/media/''']
