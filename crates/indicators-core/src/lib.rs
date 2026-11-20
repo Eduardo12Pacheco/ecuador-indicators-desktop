@@ -8,6 +8,7 @@
 //! its wire types generate the TypeScript bindings under
 //! `src/adapters/tauri/generated`.
 
+pub mod adapters;
 pub mod application;
 pub mod domain;
 pub mod ports;
