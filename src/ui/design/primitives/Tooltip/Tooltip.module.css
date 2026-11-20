@@ -1,0 +1,16 @@
+.content {
+  z-index: var(--z-popover);
+  max-width: 28ch;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-2);
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-line);
+}
+
+.arrow {
+  fill: var(--color-surface);
+}
