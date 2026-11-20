@@ -17,10 +17,10 @@ describe("App", () => {
     window.location.hash = "#/explore/NY.GDP.MKTP.CD";
     render(<App ports={createFakePorts()} />);
     expect(
-      await screen.findByRole("heading", { name: "Explore an indicator" }),
+      await screen.findByRole("heading", { name: "GDP (current US$)", level: 1 }),
     ).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "Primary navigation" })).toBeInTheDocument();
-    expect(screen.getByText("NY.GDP.MKTP.CD")).toBeInTheDocument();
+    expect(screen.getAllByText("NY.GDP.MKTP.CD").length).toBeGreaterThan(0);
   });
 
   it("exposes the design gallery outside production builds", async () => {
