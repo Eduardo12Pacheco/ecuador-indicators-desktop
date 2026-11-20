@@ -8,7 +8,7 @@ import { expect, type Page, test } from "@playwright/test";
  * Publication media capture (S31).
  *
  * Runs against the full bundled snapshot through the in-memory adapter, at
- * 1440x900 with a 2x device scale factor, so every PNG is 2880x1800. The same
+ * 1440x1280 with a 2x device scale factor, so every PNG is 2880x2560. The same
  * run writes the 12+ GIF frames into `.generated/frames`; the committed command
  * then stitches them with `pipeline/tools/make_gif.py`.
  */
@@ -51,13 +51,20 @@ test("captures the screenshot set and hero frames", async ({ page }) => {
   await seed(page);
 
   let frame = 0;
+  // Park the pointer on empty chrome (no hover styles) and wait for web fonts.
+  const settle = async (): Promise<void> => {
+    await page.mouse.move(720, 4);
+    await page.evaluate(() => document.fonts.ready);
+  };
   const frameShot = async (): Promise<void> => {
     frame += 1;
+    await settle();
     await page.screenshot({
       path: resolve(framesDir, `frame-${String(frame).padStart(2, "0")}.png`),
     });
   };
   const screenshot = async (name: string): Promise<void> => {
+    await settle();
     await page.screenshot({ path: resolve(screenshotsDir, `${name}.png`) });
   };
 
@@ -89,10 +96,13 @@ test("captures the screenshot set and hero frames", async ({ page }) => {
   await screenshot("palette");
   await frameShot();
 
-  await dialog.getByRole("combobox").fill("inflation");
-  await page.getByRole("option", { name: /Inflation, consumer prices/ }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Inflation");
-  await expect(page).toHaveURL(/FP\.CPI\.TOTL\.ZG/);
+  await dialog.getByRole("combobox").fill("life expectancy");
+  await page.getByRole("option", { name: /Life expectancy at birth/ }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Life expectancy");
+  await expect(page).toHaveURL(/SP\.DYN\.LE00\.IN/);
+  await page.getByRole("radio", { name: "Level" }).click();
+  await expect(page).not.toHaveURL(/t=yoy/);
+  await waitForChart(page);
   await frameShot();
 
   await page.getByRole("button", { name: "Toggle light and dark theme" }).click();
@@ -103,7 +113,7 @@ test("captures the screenshot set and hero frames", async ({ page }) => {
   await page.keyboard.press(process.platform === "darwin" ? "Meta+s" : "Control+s");
   const saveDialog = page.getByTestId("save-view-dialog");
   await expect(saveDialog).toBeVisible();
-  await page.getByTestId("save-view-name").fill("Inflation and peers");
+  await page.getByTestId("save-view-name").fill("Life expectancy and peers");
   await frameShot();
   await saveDialog.getByRole("button", { name: "Save view", exact: true }).click();
   await expect(saveDialog).toHaveCount(0);
@@ -123,7 +133,7 @@ test("captures the screenshot set and hero frames", async ({ page }) => {
   await screenshot("compare-trajectories");
   await frameShot();
 
-  await page.goto("/#/compare/ranking?i=NY.GDP.MKTP.CD&y=2020");
+  await page.goto("/#/compare/ranking?i=NY.GDP.PCAP.CD&y=2020");
   await expect(page.locator('[data-testid="ranking-chart"]')).toBeVisible();
   await screenshot("compare-ranking");
   await frameShot();
