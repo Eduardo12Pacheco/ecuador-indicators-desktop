@@ -15,3 +15,5 @@ src-tauri/gen
 .ruff_cache
 .coverage
 htmlcov
+
+/e2e-native/artifacts

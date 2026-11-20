@@ -13,11 +13,13 @@ export function SegmentedControl({
   options,
   value,
   onValueChange,
+  testId,
 }: {
   readonly label: string;
   readonly options: readonly SegmentedOption[];
   readonly value: string;
   readonly onValueChange: (value: string) => void;
+  readonly testId?: string;
 }) {
   return (
     <ToggleGroupPrimitive.Root
@@ -28,6 +30,7 @@ export function SegmentedControl({
       }}
       aria-label={label}
       className={styles.root}
+      data-testid={testId}
     >
       {options.map((option) => (
         <ToggleGroupPrimitive.Item key={option.value} value={option.value} className={styles.item}>

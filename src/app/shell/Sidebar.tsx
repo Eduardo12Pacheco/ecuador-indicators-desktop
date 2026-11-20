@@ -54,9 +54,20 @@ export function Sidebar({
           {NAV_ITEMS.filter((item) => showDesign || !item.designOnly).map((item) => {
             const Icon = item.icon;
             const label = t(item.titleKey);
+            const testId =
+              item.to === "/explore"
+                ? "nav-explore"
+                : item.to === "/views"
+                  ? "nav-views"
+                  : undefined;
             return (
               <li key={item.to}>
-                <NavLink to={item.to} aria-label={label} className={styles.navLink ?? ""}>
+                <NavLink
+                  to={item.to}
+                  aria-label={label}
+                  data-testid={testId}
+                  className={styles.navLink ?? ""}
+                >
                   <span className={styles.marker} aria-hidden="true" />
                   <Icon size={18} aria-hidden="true" className={styles.icon} />
                   <span className={styles.label}>{label}</span>

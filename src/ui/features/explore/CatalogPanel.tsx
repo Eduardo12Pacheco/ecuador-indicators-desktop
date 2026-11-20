@@ -110,6 +110,7 @@ export function CatalogPanel({ catalog, selected, onSelect }: CatalogPanelProps)
           role="listbox"
           aria-label={t("explore.catalog.title")}
           className={styles.listbox}
+          data-testid="catalog-listbox"
           onKeyDown={(event) => {
             if (event.key === "ArrowDown") {
               event.preventDefault();
@@ -148,6 +149,7 @@ export function CatalogPanel({ catalog, selected, onSelect }: CatalogPanelProps)
                     type="button"
                     role="option"
                     aria-selected={isSelected}
+                    data-testid="catalog-option"
                     tabIndex={index === activeIndex ? 0 : -1}
                     className={[styles.option, isSelected ? styles.selected : ""]
                       .filter(Boolean)

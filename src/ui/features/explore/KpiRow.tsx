@@ -59,7 +59,9 @@ export function KpiRow({ model }: { readonly model: ExploreModel }) {
     >
       <Card as="article" className={styles.card}>
         <p className={styles.label}>{t("explore.kpi.latest")}</p>
-        <p className={styles.value}>{valueFor(summary.latest.value)}</p>
+        <p className={styles.value} data-testid="kpi-latest">
+          {valueFor(summary.latest.value)}
+        </p>
         <p className={styles.sub}>
           {formatYear(summary.latest.year, locale)} · {indicatorName(model.indicator, lang)}
         </p>

@@ -194,6 +194,7 @@ export function SettingsPage() {
             label={t("settings.theme.label")}
             options={themeOptions}
             value={settings.theme}
+            testId="theme-segmented"
             onValueChange={(value) => {
               const theme = value as ThemePref;
               setTheme(theme);
@@ -207,6 +208,7 @@ export function SettingsPage() {
             label={t("settings.language.label")}
             options={languageOptions}
             value={settings.language}
+            testId="language-segmented"
             onValueChange={(value) => {
               const language = value as LangPref;
               setLanguage(language);
