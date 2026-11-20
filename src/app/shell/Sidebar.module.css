@@ -1,0 +1,123 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-width);
+  flex: none;
+  height: 100%;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-surface);
+  transition: width var(--dur-base) var(--ease-standard);
+}
+
+.sidebar[data-collapsed="true"] {
+  width: var(--sidebar-collapsed-width);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--topbar-height);
+  padding: 0 var(--space-5);
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: var(--text-h3-size);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.mark {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(var(--color-accent), var(--color-accent)) center / 100% 2px no-repeat,
+    var(--color-primary);
+}
+
+.brandText {
+  font-size: var(--text-body-size);
+  letter-spacing: var(--tracking-tight);
+}
+
+.nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-3);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  list-style: none;
+  padding: 0;
+}
+
+.navLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.navLink:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+.navLink[aria-current="page"] {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.marker {
+  position: absolute;
+  left: 0;
+  width: 3px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  background: transparent;
+}
+
+.navLink[aria-current="page"] .marker {
+  background: var(--color-accent);
+}
+
+.icon {
+  flex: none;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar[data-collapsed="true"] .brandText,
+.sidebar[data-collapsed="true"] .label {
+  display: none;
+}
+
+.sidebar[data-collapsed="true"] .navLink,
+.sidebar[data-collapsed="true"] .brand {
+  justify-content: center;
+  padding: 0;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
