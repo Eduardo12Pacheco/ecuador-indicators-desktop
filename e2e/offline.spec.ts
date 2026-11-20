@@ -37,6 +37,7 @@ test.describe("Offline", () => {
     await expect(page.locator("main table")).toBeVisible();
 
     await page.getByRole("link", { name: "Explore" }).click();
+    await expect(page).toHaveURL(/\/explore\//);
     await waitForExplore(page);
     await pressModShortcut(page, "s");
     await page.getByTestId("save-view-name").fill("Offline view");
