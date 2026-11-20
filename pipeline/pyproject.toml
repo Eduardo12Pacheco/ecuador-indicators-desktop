@@ -18,8 +18,12 @@ dependencies = [
   "typer>=0.29.2",
 ]
 
+[project.optional-dependencies]
+lakehouse = ["duckdb>=2.0.0"]
+
 [dependency-groups]
 dev = [
+  "duckdb>=2.0.0",
   "pytest>=8.4",
   "pytest-cov>=7.0",
   "hypothesis>=6.140",

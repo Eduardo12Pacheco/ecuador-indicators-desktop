@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Protocol
 
+from ecuador_data.domain.manifest import LakehouseImport
 from ecuador_data.domain.models import (
     Dataset,
     ObservationPage,
@@ -65,3 +66,15 @@ class SnapshotWriter(Protocol):
     def write(self, dataset: Dataset, meta: Mapping[str, str], path: Path) -> str: ...
 
     def read(self, path: Path) -> SnapshotRead: ...
+
+
+class LakehouseSource(Protocol):
+    """Reads a snapshot dataset from a lakehouse DuckDB export."""
+
+    def read(self, manifest_path: Path) -> LakehouseImport: ...
+
+
+class JsonExporter(Protocol):
+    """Writes the JSON snapshot consumed by the in-memory adapter."""
+
+    def write(self, dataset: Dataset, meta: Mapping[str, str], path: Path) -> int: ...

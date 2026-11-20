@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Eduardo12Pacheco/ecuador-indicators-desktop/schemas/lakehouse-manifest.v1.schema.json",
+  "title": "Ecuador Indicators lakehouse manifest v1",
+  "description": "Contract between a sibling lakehouse DuckDB export and `ecuador-data import-lakehouse`. The manifest and the DuckDB file live in the same directory; `duckdb.path` is relative to the manifest.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "kind",
+    "generated_at",
+    "dataset",
+    "license",
+    "duckdb",
+    "relations"
+  ],
+  "properties": {
+    "manifest_version": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+$",
+      "description": "Major version 1 is required; the minor version is informative."
+    },
+    "kind": {
+      "const": "ecuador-indicators-lakehouse-export"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC ISO-8601 timestamp of the export."
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "title"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 }
+      }
+    },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spdx", "url", "attribution_en", "attribution_es"],
+      "properties": {
+        "spdx": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "minLength": 1 },
+        "attribution_en": { "type": "string", "minLength": 1 },
+        "attribution_es": { "type": "string", "minLength": 1 }
+      }
+    },
+    "duckdb": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relative path to the DuckDB file; must not escape the manifest directory."
+        },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "relations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["topics", "geographies", "indicators", "observations"],
+      "properties": {
+        "topics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["relation", "columns"],
+          "properties": {
+            "relation": { "$ref": "#/$defs/relationIdentifier" },
+            "columns": { "$ref": "#/$defs/topicsColumns" }
+          }
+        },
+        "geographies": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["relation", "columns"],
+          "properties": {
+            "relation": { "$ref": "#/$defs/relationIdentifier" },
+            "columns": { "$ref": "#/$defs/geographiesColumns" }
+          }
+        },
+        "indicators": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["relation", "columns"],
+          "properties": {
+            "relation": { "$ref": "#/$defs/relationIdentifier" },
+            "columns": { "$ref": "#/$defs/indicatorsColumns" }
+          }
+        },
+        "observations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["relation", "columns"],
+          "properties": {
+            "relation": { "$ref": "#/$defs/relationIdentifier" },
+            "columns": { "$ref": "#/$defs/observationsColumns" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "relationIdentifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)?$"
+    },
+    "topicsColumns": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name_en", "name_es", "sort_order"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifier" },
+        "name_en": { "$ref": "#/$defs/identifier" },
+        "name_es": { "$ref": "#/$defs/identifier" },
+        "sort_order": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "geographiesColumns": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["iso3", "iso2", "name_en", "name_es", "is_aggregate", "sort_order"],
+      "properties": {
+        "iso3": { "$ref": "#/$defs/identifier" },
+        "iso2": { "$ref": "#/$defs/identifier" },
+        "name_en": { "$ref": "#/$defs/identifier" },
+        "name_es": { "$ref": "#/$defs/identifier" },
+        "is_aggregate": { "$ref": "#/$defs/identifier" },
+        "sort_order": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "indicatorsColumns": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "topic_id",
+        "name_en",
+        "name_es",
+        "description_en",
+        "description_es",
+        "unit_en",
+        "unit_es",
+        "value_kind",
+        "decimals",
+        "higher_is",
+        "source_org_en",
+        "source_org_es",
+        "sort_order"
+      ],
+      "properties": {
+        "code": { "$ref": "#/$defs/identifier" },
+        "topic_id": { "$ref": "#/$defs/identifier" },
+        "name_en": { "$ref": "#/$defs/identifier" },
+        "name_es": { "$ref": "#/$defs/identifier" },
+        "description_en": { "$ref": "#/$defs/identifier" },
+        "description_es": { "$ref": "#/$defs/identifier" },
+        "unit_en": { "$ref": "#/$defs/identifier" },
+        "unit_es": { "$ref": "#/$defs/identifier" },
+        "value_kind": { "$ref": "#/$defs/identifier" },
+        "decimals": { "$ref": "#/$defs/identifier" },
+        "higher_is": { "$ref": "#/$defs/identifier" },
+        "source_org_en": { "$ref": "#/$defs/identifier" },
+        "source_org_es": { "$ref": "#/$defs/identifier" },
+        "sort_order": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "observationsColumns": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["indicator_code", "iso3", "year", "value"],
+      "properties": {
+        "indicator_code": { "$ref": "#/$defs/identifier" },
+        "iso3": { "$ref": "#/$defs/identifier" },
+        "year": { "$ref": "#/$defs/identifier" },
+        "value": { "$ref": "#/$defs/identifier" }
+      }
+    }
+  }
+}
