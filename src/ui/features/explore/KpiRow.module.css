@@ -11,6 +11,7 @@
 }
 
 .card {
+  container-type: inline-size;
   min-width: 0;
   padding: var(--space-4);
 }
@@ -29,7 +30,8 @@
   align-items: center;
   gap: var(--space-1);
   margin: var(--space-2) 0 var(--space-1);
-  font-size: var(--text-kpi-size);
+  /* Scale down inside narrow cards so values such as "-227.4%" never spill out. */
+  font-size: clamp(1.25rem, 14cqi, var(--text-kpi-size));
   line-height: var(--text-kpi-line);
   font-weight: var(--text-kpi-weight);
   font-variant-numeric: tabular-nums;

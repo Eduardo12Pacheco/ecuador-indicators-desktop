@@ -51,4 +51,75 @@ test.describe("Layout", () => {
     await expectNoHorizontalScroll(page);
     await expect(page.getByLabel("Base year")).toBeVisible();
   });
+
+  test("keeps the year-range thumbs on their track", async ({ page }) => {
+    await gotoApp(page);
+    await waitForExplore(page);
+
+    const section = page.locator('section[aria-labelledby="range-title"]');
+    const sectionBox = await section.boundingBox();
+    expect(sectionBox).not.toBeNull();
+    const thumbs = page.getByRole("slider");
+    await expect(thumbs).toHaveCount(2);
+    for (let index = 0; index < 2; index += 1) {
+      const box = await thumbs.nth(index).boundingBox();
+      expect(box).not.toBeNull();
+      if (box !== null && sectionBox !== null) {
+        expect(box.x).toBeGreaterThanOrEqual(sectionBox.x);
+        expect(box.x + box.width).toBeLessThanOrEqual(sectionBox.x + sectionBox.width);
+        expect(box.y).toBeGreaterThanOrEqual(sectionBox.y);
+        expect(box.y + box.height).toBeLessThanOrEqual(sectionBox.y + sectionBox.height);
+      }
+    }
+  });
+
+  test("never lets KPI values spill out of their cards", async ({ page }) => {
+    await page.setViewportSize({ width: 960, height: 640 });
+    for (const hash of [
+      "/explore/NY.GDP.MKTP.CD",
+      "/explore/FP.CPI.TOTL.ZG?t=yoy",
+      "/explore/NY.GDP.MKTP.CD?t=yoy",
+    ]) {
+      await gotoApp(page, { hash });
+      await waitForExplore(page);
+      const overflowing = await page.evaluate(() =>
+        [...document.querySelectorAll('section[aria-label$="summary"] article')].flatMap((card) =>
+          [...card.querySelectorAll("p")]
+            .filter((text) => text.scrollWidth > card.clientWidth)
+            .map((text) => `${text.textContent} (${text.scrollWidth} > ${card.clientWidth})`),
+        ),
+      );
+      expect(overflowing, hash).toEqual([]);
+    }
+  });
+
+  test("lays out the ranking controls as aligned fields", async ({ page }) => {
+    await gotoApp(page, { hash: "/compare/ranking?i=NY.GDP.MKTP.CD&y=2020" });
+    await expect(page.locator('[data-testid="ranking-chart"]')).toBeVisible();
+
+    const indicator = await page.getByRole("combobox", { name: /^Indicator/ }).boundingBox();
+    const year = await page.getByRole("combobox", { name: /^Year/ }).boundingBox();
+    expect(indicator).not.toBeNull();
+    expect(year).not.toBeNull();
+    if (indicator !== null && year !== null) {
+      // Two grid columns: same row, no overlap, comparable widths.
+      expect(Math.abs(indicator.y - year.y)).toBeLessThan(2);
+      expect(indicator.x + indicator.width).toBeLessThanOrEqual(year.x);
+      expect(Math.abs(indicator.width - year.width)).toBeLessThan(2);
+    }
+  });
+
+  test("does not let the scrolling picker squash its options into each other", async ({ page }) => {
+    await gotoApp(page, { hash: "/compare/trajectories" });
+    const options = page.getByRole("listbox", { name: "Indicators" }).getByRole("option");
+    const count = await options.count();
+    expect(count).toBeGreaterThan(1);
+    for (let index = 0; index < count; index += 1) {
+      // Rows must keep their natural height; the listbox scrolls instead.
+      const shrink = await options
+        .nth(index)
+        .evaluate((element) => getComputedStyle(element).flexShrink);
+      expect(shrink).toBe("0");
+    }
+  });
 });

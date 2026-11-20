@@ -22,8 +22,20 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Radix positions each thumb absolutely, so the control must be the positioned
+   * ancestor; otherwise the thumbs land on the viewport edges. */
+.control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 18px;
+  touch-action: none;
+  user-select: none;
+}
+
 .track {
   position: relative;
+  flex: 1;
   height: 4px;
   border-radius: var(--radius-pill);
   background: var(--color-border);

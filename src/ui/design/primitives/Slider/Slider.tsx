@@ -39,7 +39,7 @@ export function Slider({
           const second = next[1] ?? first;
           onValueChange([first, second]);
         }}
-        className={styles.root}
+        className={styles.control}
       >
         <SliderPrimitive.Track className={styles.track}>
           <SliderPrimitive.Range className={styles.range} />

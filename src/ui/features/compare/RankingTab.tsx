@@ -12,6 +12,7 @@ import { SegmentedControl } from "../../design/primitives/SegmentedControl/Segme
 import { useTheme } from "../../design/ThemeProvider";
 import { useT } from "../../i18n/useT";
 import { usePorts } from "../../ports-context";
+import controlStyles from "./CompareControls.module.css";
 import { CompareEmpty, CompareError, CompareSkeleton } from "./CompareStates";
 import styles from "./CompareTab.module.css";
 import { RankingTable } from "./RankingTable";
@@ -137,7 +138,7 @@ export function RankingTab({
   return (
     <div className={styles.tab}>
       <div className={styles.controls}>
-        <label className={styles.field}>
+        <label className={controlStyles.field}>
           <span>{t("compare.ranking.indicator")}</span>
           <select
             value={model.indicator.code}
@@ -152,7 +153,7 @@ export function RankingTab({
               ))}
           </select>
         </label>
-        <label className={styles.field}>
+        <label className={controlStyles.field}>
           <span>{t("compare.ranking.year")}</span>
           <select
             value={effectiveYear}
