@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { createMemoryRouter, RouterProvider } from "react-router";
+import { createMemoryRouter, Outlet, RouterProvider, useLocation } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { createFakePorts } from "../../test/fake-ports";
@@ -9,8 +9,26 @@ import { AppProviders } from "../providers";
 import { appRoutes } from "../router";
 import { AppShell } from "./AppShell";
 
+function LocationEcho() {
+  const location = useLocation();
+  return <output data-testid="location">{`${location.pathname}${location.search}`}</output>;
+}
+
 function renderShell(route = "/explore/NY.GDP.MKTP.CD") {
-  const router = createMemoryRouter(appRoutes(), { initialEntries: [route] });
+  const router = createMemoryRouter(
+    [
+      {
+        element: (
+          <>
+            <Outlet />
+            <LocationEcho />
+          </>
+        ),
+        children: appRoutes(),
+      },
+    ],
+    { initialEntries: [route] },
+  );
   return render(
     <AppProviders ports={createFakePorts()}>
       <RouterProvider router={router} />
@@ -94,6 +112,60 @@ describe("AppShell", () => {
     renderShell();
     await screen.findByText("World Development Indicators");
     await expectNoA11yViolations(document.body);
+  });
+});
+
+describe("AppShell global shortcuts", () => {
+  it("opens the command palette with Control+K", async () => {
+    renderShell();
+    await userEvent.keyboard("{Control>}k{/Control}");
+    expect(await screen.findByRole("dialog", { name: "Command palette" })).toBeInTheDocument();
+  });
+
+  it("opens the keyboard shortcut help with ?", async () => {
+    renderShell();
+    await userEvent.keyboard("?");
+    expect(await screen.findByRole("dialog", { name: "Keyboard shortcuts" })).toBeInTheDocument();
+    expect(screen.getByRole("rowheader", { name: "Open command palette" })).toBeInTheDocument();
+  });
+
+  it("changes the Explore indicator with the bracket keys", async () => {
+    renderShell("/explore/NY.GDP.MKTP.CD");
+    await screen.findByRole("heading", { name: "GDP (current US$)", level: 1 });
+    await userEvent.keyboard("]");
+    expect(
+      await screen.findByRole("heading", {
+        name: "Inflation, consumer prices (annual %)",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps the Explore geographies when the palette picks an indicator", async () => {
+    renderShell("/explore/NY.GDP.MKTP.CD?g=ECU%2CCOL");
+    await screen.findByRole("heading", { name: "GDP (current US$)", level: 1 });
+    await userEvent.keyboard("{Control>}k{/Control}");
+    await screen.findByRole("dialog", { name: "Command palette" });
+    await userEvent.type(screen.getByRole("combobox", { name: "Command palette" }), "inflation");
+    await screen.findByRole("option", { name: /Inflation, consumer prices/ });
+    await userEvent.keyboard("{Enter}");
+    expect(
+      await screen.findByRole("heading", {
+        name: "Inflation, consumer prices (annual %)",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("location")).toHaveTextContent("/explore/FP.CPI.TOTL.ZG?g=ECU%2CCOL");
+  });
+
+  it("navigates with the g chord", async () => {
+    renderShell("/settings");
+    await screen.findByRole("heading", { name: "Settings" });
+    await userEvent.keyboard("g");
+    await userEvent.keyboard("e");
+    expect(
+      await screen.findByRole("heading", { name: "GDP (current US$)", level: 1 }),
+    ).toBeInTheDocument();
   });
 });
 
