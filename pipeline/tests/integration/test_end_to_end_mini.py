@@ -7,6 +7,8 @@ import shutil
 from pathlib import Path
 
 import pytest
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 from typer.testing import CliRunner
 
 from ecuador_data.cli import app
@@ -52,6 +54,26 @@ def test_verify_fails_after_a_single_byte_change(data_dir: Path) -> None:
     assert result.exit_code == 2
     assert "checksum mismatch" in result.stderr
     assert "raw/worldbank/observations/NY.GDP.MKTP.CD.json" in result.stderr
+
+
+@given(seed=st.integers(min_value=0, max_value=2**31 - 1))
+@settings(
+    max_examples=10, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture]
+)
+def test_verify_fails_after_any_single_byte_change(data_dir: Path, seed: int) -> None:
+    target = data_dir / "raw" / "worldbank" / "observations" / "SI.POV.NAHC.json"
+    original = target.read_bytes()
+    offset = seed % len(original)
+    mutated = bytearray(original)
+    mutated[offset] ^= 0x01
+    target.write_bytes(bytes(mutated))
+    try:
+        result = runner.invoke(app, ["verify", "--data-dir", str(data_dir)])
+    finally:
+        target.write_bytes(original)
+    assert result.exit_code == 2
+    assert "checksum mismatch" in result.stderr
+    assert "raw/worldbank/observations/SI.POV.NAHC.json" in result.stderr
 
 
 def test_canonical_build_refreshes_the_manifest_and_still_verifies(data_dir: Path) -> None:

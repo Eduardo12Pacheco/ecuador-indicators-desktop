@@ -7,6 +7,8 @@ import sqlite3
 from pathlib import Path
 
 import pytest
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 
 from ecuador_data.adapters.sqlite_snapshot import SqliteSnapshotWriter
 from ecuador_data.domain.errors import IntegrityError
@@ -111,6 +113,38 @@ def test_read_rejects_incomplete_meta(tmp_path: Path) -> None:
         connection.execute("DELETE FROM meta WHERE key = 'license_url'")
     with pytest.raises(IntegrityError, match="meta is incomplete"):
         SqliteSnapshotWriter().read(target)
+
+
+@given(
+    points=st.lists(
+        st.tuples(
+            st.integers(min_value=1900, max_value=2100),
+            st.floats(allow_nan=False, allow_infinity=False),
+        ),
+        unique_by=lambda item: item[0],
+        min_size=1,
+        max_size=20,
+    )
+)
+@settings(
+    max_examples=10,
+    deadline=None,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
+def test_observation_round_trip_property(tmp_path: Path, points: list[tuple[int, float]]) -> None:
+    writer = SqliteSnapshotWriter()
+    read = writer.read(FIXTURE / "snapshot" / "ecuador-indicators.snapshot.sqlite")
+    observations = tuple(
+        Observation(indicator_code="NY.GDP.MKTP.CD", iso3="ECU", year=year, value=value)
+        for year, value in points
+    )
+    dataset = read.dataset.model_copy(update={"observations": observations})
+    target = tmp_path / "property.sqlite"
+    writer.write(dataset, read.meta, target)
+    again = writer.read(target)
+    assert again.dataset.observations == tuple(
+        sorted(observations, key=lambda item: (item.indicator_code, item.iso3, item.year))
+    )
 
 
 def test_write_is_atomic_and_leaves_no_temp_file(tmp_path: Path) -> None:
