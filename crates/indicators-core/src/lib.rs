@@ -1,7 +1,15 @@
 #![forbid(unsafe_code)]
 
 //! Pure domain, ports and application services for Ecuador Indicators.
-//! This crate has no Tauri dependency; adapters are added in T4.
+//!
+//! Layering is enforced by `tests/architecture.rs`: `domain`, `ports` and
+//! `application` never import SQLite, HTTP, filesystem or Tauri crates. The
+//! `adapters` module implements those ports for the shipping application, and
+//! its wire types generate the TypeScript bindings under
+//! `src/adapters/tauri/generated`.
+
+pub mod domain;
+pub mod ports;
 
 /// Returns the workspace version as a SemVer string.
 #[must_use]
