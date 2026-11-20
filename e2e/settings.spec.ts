@@ -23,6 +23,29 @@ test.describe("Settings", () => {
     await expect(page.getByRole("link", { name: "Explorar" })).toBeVisible();
   });
 
+  test("theme and language chosen in the top bar persist and show up in Settings", async ({
+    page,
+  }) => {
+    await gotoApp(page, { hash: "/explore/NY.GDP.MKTP.CD" });
+
+    await page.getByRole("button", { name: "Toggle light and dark theme" }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.getByLabel("Change language").selectOption("es");
+    await expect(page.locator("html")).toHaveAttribute("lang", "es");
+
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(page.locator("html")).toHaveAttribute("lang", "es");
+
+    await page.getByRole("link", { name: "Ajustes" }).click();
+    await expect(
+      page.getByRole("radiogroup", { name: "Tema" }).getByRole("radio", { name: "Oscuro" }),
+    ).toBeChecked();
+    await expect(
+      page.getByRole("radiogroup", { name: "Idioma" }).getByRole("radio", { name: "Español" }),
+    ).toBeChecked();
+  });
+
   test("update check is off by default and makes no request on launch when disabled", async ({
     page,
   }) => {
@@ -51,7 +74,7 @@ test.describe("Settings", () => {
   test("shows dataset counts and read-only storage locations", async ({ page }) => {
     await gotoApp(page, { hash: "/settings" });
 
-    await expect(page.getByText("6 indicators · 5 geographies · 1524 observations")).toBeVisible();
+    await expect(page.getByText("6 indicators · 5 geographies · 1,524 observations")).toBeVisible();
     await expect(page.getByText("World Development Indicators · The World Bank")).toBeVisible();
     await expect(page.getByText("Data directory")).toBeVisible();
     await expect(page.getByText("Log directory")).toBeVisible();

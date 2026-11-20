@@ -35,7 +35,7 @@ describe("AboutPage", () => {
     expect(screen.getByText("1.2.3")).toBeInTheDocument();
     expect(screen.getByText(/No telemetry/)).toBeInTheDocument();
     expect(
-      screen.getByText("38 indicators · 7 geographies · 11780 observations"),
+      screen.getByText("38 indicators · 7 geographies · 11,780 observations"),
     ).toBeInTheDocument();
   });
 

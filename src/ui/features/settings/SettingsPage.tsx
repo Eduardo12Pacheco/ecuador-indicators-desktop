@@ -11,6 +11,7 @@ import { useState } from "react";
 import { getSettings, updateSettings } from "../../../core/application/use-cases/settings";
 import { openSnapshot, resetSnapshot } from "../../../core/application/use-cases/snapshot";
 import { checkForUpdates } from "../../../core/application/use-cases/updates";
+import { formatCount } from "../../../core/domain/format";
 import type { LangPref, Settings, ThemePref, UpdateStatus } from "../../../core/domain/model";
 import { Button } from "../../design/primitives/Button/Button";
 import { ErrorState } from "../../design/primitives/ErrorState/ErrorState";
@@ -29,7 +30,7 @@ type CheckState = "idle" | "checking" | "upToDate" | "available" | "disabled" | 
 export function SettingsPage() {
   const ports = usePorts();
   const queryClient = useQueryClient();
-  const { t, setPref: setLanguage } = useT();
+  const { t, locale, setPref: setLanguage } = useT();
   const { setPref: setTheme } = useTheme();
   const { showToast } = useToast();
   const [checking, setChecking] = useState(false);
@@ -81,6 +82,9 @@ export function SettingsPage() {
   const settings = settingsQuery.data.value;
   const dataset = datasetQuery.data?.ok === true ? datasetQuery.data.value : null;
   const appInfo = appInfoQuery.data?.ok === true ? appInfoQuery.data.value : null;
+  // The browser (in-memory) adapter has no directories; show a dash, not an empty box.
+  const dataDir = appInfo?.dataDir ?? "";
+  const logDir = appInfo?.logDir ?? "";
 
   async function persist(patch: Partial<Settings>): Promise<void> {
     const next: Settings = { ...settings, ...patch };
@@ -281,7 +285,7 @@ export function SettingsPage() {
                 {t("settings.dataset.counts", {
                   indicators: dataset.counts.indicators,
                   geographies: dataset.counts.geographies,
-                  observations: dataset.counts.observations,
+                  observations: formatCount(dataset.counts.observations, locale),
                 })}
               </dd>
             </div>
@@ -307,28 +311,26 @@ export function SettingsPage() {
         <p className={styles.description}>{t("settings.storage.description")}</p>
         <div className={styles.storageRow}>
           <span className={styles.label}>{t("settings.storage.dataDir")}</span>
-          <code className={styles.path}>{appInfo?.dataDir ?? "—"}</code>
+          <code className={styles.path}>{dataDir === "" ? "—" : dataDir}</code>
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => void copy(appInfo?.dataDir ?? "")}
-            disabled={appInfo === null}
+            onClick={() => void copy(dataDir)}
+            disabled={dataDir === ""}
           >
-            {copied === appInfo?.dataDir
-              ? t("settings.storage.copied")
-              : t("settings.storage.copy")}
+            {copied === dataDir ? t("settings.storage.copied") : t("settings.storage.copy")}
           </Button>
         </div>
         <div className={styles.storageRow}>
           <span className={styles.label}>{t("settings.storage.logDir")}</span>
-          <code className={styles.path}>{appInfo?.logDir ?? "—"}</code>
+          <code className={styles.path}>{logDir === "" ? "—" : logDir}</code>
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => void copy(appInfo?.logDir ?? "")}
-            disabled={appInfo === null}
+            onClick={() => void copy(logDir)}
+            disabled={logDir === ""}
           >
-            {copied === appInfo?.logDir ? t("settings.storage.copied") : t("settings.storage.copy")}
+            {copied === logDir ? t("settings.storage.copied") : t("settings.storage.copy")}
           </Button>
         </div>
       </section>

@@ -92,6 +92,15 @@ describe("domain model helpers", () => {
     expect(topicName(topic, "es")).toBe("Economía y precios");
   });
 
+  it("trims the stray whitespace the World Bank API puts in some names", () => {
+    const geography = makeGeography({
+      nameEn: "Latin America & Caribbean ",
+      nameEs: "América Latina y el Caribe ",
+    });
+    expect(geographyName(geography, "en")).toBe("Latin America & Caribbean");
+    expect(geographyName(geography, "es")).toBe("América Latina y el Caribe");
+  });
+
   it("finds catalog entries", () => {
     const catalog = makeCatalog();
     expect(findIndicator(catalog, "NY.GDP.MKTP.CD")?.code).toBe("NY.GDP.MKTP.CD");

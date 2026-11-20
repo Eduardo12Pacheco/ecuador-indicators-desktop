@@ -6,6 +6,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import notices from "../../../../THIRD_PARTY_NOTICES.md?raw";
+import { formatCount, formatDate } from "../../../core/domain/format";
 import { indicatorName } from "../../../core/domain/model";
 import { normalizeText } from "../../../core/domain/search";
 import { Button } from "../../design/primitives/Button/Button";
@@ -16,14 +17,6 @@ import { Skeleton } from "../../design/primitives/Skeleton/Skeleton";
 import { useT } from "../../i18n/useT";
 import { usePorts } from "../../ports-context";
 import styles from "./AboutPage.module.css";
-
-function formatDate(value: string, locale: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(date);
-}
 
 /** Data provenance, indicator sources and application information. */
 export function AboutPage() {
@@ -134,7 +127,7 @@ export function AboutPage() {
                 {t("settings.dataset.counts", {
                   indicators: dataset.counts.indicators,
                   geographies: dataset.counts.geographies,
-                  observations: dataset.counts.observations,
+                  observations: formatCount(dataset.counts.observations, locale),
                 })}
               </dd>
             </div>

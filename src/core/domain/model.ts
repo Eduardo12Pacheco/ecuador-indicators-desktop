@@ -221,9 +221,15 @@ export function topicName(topic: Topic, lang: Lang): string {
   return lang === "es" ? topic.nameEs : topic.nameEn;
 }
 
-/** Returns the localized display name of a geography. */
+/**
+ * Returns the localized display name of a geography.
+ *
+ * The World Bank API returns some names with trailing whitespace (for example
+ * "Latin America & Caribbean "); the raw cache keeps them verbatim, so the
+ * display layer trims them.
+ */
 export function geographyName(geography: Geography, lang: Lang): string {
-  return lang === "es" ? geography.nameEs : geography.nameEn;
+  return (lang === "es" ? geography.nameEs : geography.nameEn).trim();
 }
 
 /** Returns the localized display name of an indicator. */

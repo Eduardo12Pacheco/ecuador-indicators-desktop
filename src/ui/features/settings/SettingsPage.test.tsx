@@ -170,4 +170,22 @@ describe("SettingsPage", () => {
     await waitFor(() => expect(writeText).toHaveBeenCalledWith("/tmp/data"));
     expect(await screen.findByRole("button", { name: "Copied" })).toBeInTheDocument();
   });
+
+  it("shows a dash and disables copying when the adapter has no directories", async () => {
+    const ports = createFakePorts({
+      settings: { get: async () => ok(makeSettings()), set: async () => ok(undefined) },
+      appInfo: { get: async () => ok(makeAppInfo({ dataDir: "", logDir: "" })) },
+    });
+    renderWithProviders(<SettingsPage />, { ports });
+    const heading = await screen.findByRole("heading", { name: "Storage" });
+    const section = heading.closest("section");
+    expect(section).not.toBeNull();
+    if (section === null) {
+      throw new Error("storage section is missing");
+    }
+    await waitFor(() => expect(within(section).getAllByText("—")).toHaveLength(2));
+    for (const button of within(section).getAllByRole("button", { name: "Copy" })) {
+      expect(button).toBeDisabled();
+    }
+  });
 });

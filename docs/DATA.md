@@ -169,3 +169,6 @@ jq '.snapshot.counts' data/MANIFEST.json
   aggregate values.
 - **Spanish metadata** comes from the World Bank's Spanish API; derived values
   are computed by the application and are not official World Bank calculations.
+- **Verbatim names.** The API returns some geography names with trailing
+  whitespace (for example `LCN`). The raw cache and snapshot keep them
+  unchanged so checksums stay reproducible; the UI trims them for display.
