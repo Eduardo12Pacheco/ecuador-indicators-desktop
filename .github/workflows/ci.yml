@@ -24,27 +24,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 26
-          cache: npm
-
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
-
-      - uses: Swatinem/rust-cache@v2
-
-      - uses: astral-sh/setup-uv@v7
-        with:
-          enable-cache: true
-
-      - name: Install Tauri system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev \
-            libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf xdg-utils
+      - uses: ./.github/actions/setup-toolchain
 
       - name: Install JavaScript dependencies
         run: npm ci
@@ -73,6 +53,14 @@ jobs:
         working-directory: pipeline
         run: uv run mypy --strict src
 
+      - name: Import contracts
+        working-directory: pipeline
+        run: uv run lint-imports
+
+      - name: uv lockfile
+        working-directory: pipeline
+        run: uv lock --check
+
       - name: Install actionlint
         run: |
           mkdir -p "$HOME/.local/bin"
@@ -83,55 +71,400 @@ jobs:
       - name: Actionlint
         run: actionlint
 
-      - name: Install gitleaks
-        run: |
-          mkdir -p "$HOME/.local/bin"
-          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
-            | tar -xz -C "$HOME/.local/bin" gitleaks
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-
-      - name: Gitleaks
-        run: gitleaks git --no-banner --redact .
-
-  test:
-    name: Tests
-    runs-on: ubuntu-latest
+  ts:
+    name: TypeScript tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v7
+      - uses: ./.github/actions/setup-toolchain
         with:
-          node-version: 26
-          cache: npm
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - uses: Swatinem/rust-cache@v2
-
-      - uses: astral-sh/setup-uv@v7
-        with:
-          enable-cache: true
-
-      - name: Install Tauri system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev \
-            libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf xdg-utils
+          linux-deps: "false"
 
       - name: Install JavaScript dependencies
         run: npm ci
 
-      - name: Vitest
-        run: npm test
+      - name: Vitest with coverage
+        run: npm run test:cov
 
-      - name: Rust tests
+      - name: Upload coverage
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-ts
+          path: coverage/
+          retention-days: 7
+
+  rust:
+    name: Rust tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+        with:
+          linux-deps: "false"
+
+      - name: Cargo test
         run: cargo test --workspace
+
+  rust-coverage:
+    name: Rust coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+        with:
+          linux-deps: "false"
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+
+      - name: Coverage gate
+        run: cargo llvm-cov -p indicators-core --fail-under-lines 85
+
+  pipeline:
+    name: Pipeline tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+        with:
+          linux-deps: "false"
 
       - name: Sync Python environment
         working-directory: pipeline
         run: uv sync --frozen
 
-      - name: Pipeline tests
+      - name: Pytest
         working-directory: pipeline
         run: uv run pytest -q
+
+  data:
+    name: Data reproducibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+        with:
+          linux-deps: "false"
+
+      - name: Sync Python environment
+        working-directory: pipeline
+        run: uv sync --frozen
+
+      - name: Verify the committed snapshot and raw cache
+        run: uv run --directory pipeline ecuador-data verify
+
+      - name: Rebuild from raw data and compare logical hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          uv run --directory pipeline ecuador-data build --out "$tmp/full.sqlite"
+          uv run --directory pipeline ecuador-data build --subset mini --out "$tmp/mini.sqlite"
+          uv run --directory pipeline ecuador-data export-json --subset mini --out "$tmp/mini.json"
+          uv run --directory pipeline python - "$tmp" <<'PY'
+          import json
+          import sqlite3
+          import sys
+          from pathlib import Path
+
+          # `uv run --directory pipeline` executes with `pipeline/` as cwd.
+          root = Path("..")
+          tmp = Path(sys.argv[1])
+
+          def logical_sha256(path: Path) -> str:
+              with sqlite3.connect(f"file:{path}?mode=ro", uri=True) as connection:
+                  row = connection.execute(
+                      "SELECT value FROM meta WHERE key = 'logical_sha256'"
+                  ).fetchone()
+              if row is None:
+                  raise SystemExit(f"missing logical_sha256 in {path}")
+              return str(row[0])
+
+          manifest = json.loads((root / "data/MANIFEST.json").read_text(encoding="utf-8"))
+          expected = manifest["snapshot"]["logical_sha256"]
+          actual = logical_sha256(tmp / "full.sqlite")
+          if actual != expected:
+              raise SystemExit(f"full snapshot logical hash {actual} != manifest {expected}")
+
+          committed_mini = logical_sha256(
+              root / "crates/indicators-core/tests/fixtures/mini.snapshot.sqlite"
+          )
+          rebuilt_mini = logical_sha256(tmp / "mini.sqlite")
+          if rebuilt_mini != committed_mini:
+              raise SystemExit(
+                  f"mini snapshot logical hash {rebuilt_mini} != committed {committed_mini}"
+              )
+
+          exported = json.loads((tmp / "mini.json").read_text(encoding="utf-8"))
+          committed_json = json.loads(
+              (root / "src/adapters/memory/fixtures/mini.snapshot.json").read_text(encoding="utf-8")
+          )
+          if exported != committed_json:
+              raise SystemExit("export-json mini fixture differs from the committed fixture")
+
+          print("data reproducibility ok")
+          PY
+
+  bindings:
+    name: Bindings drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+        with:
+          linux-deps: "false"
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Check generated bindings
+        run: npm run check:bindings
+
+  e2e-web:
+    name: Web E2E
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Playwright
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  e2e-native:
+    name: Native E2E
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+
+      - name: Install native WebDriver dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends webkit2gtk-driver xvfb
+
+      - name: Cache tauri-driver
+        id: tauri-driver-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/tauri-driver
+          key: ${{ runner.os }}-tauri-driver-${{ hashFiles('Cargo.lock') }}
+
+      - name: Install tauri-driver
+        if: steps.tauri-driver-cache.outputs.cache-hit != 'true'
+        run: cargo install tauri-driver --locked
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Install native E2E dependencies
+        run: npm --prefix e2e-native ci
+
+      - name: Build the desktop binary
+        run: npx tauri build --no-bundle
+
+      - name: Run the native suite under xvfb
+        run: xvfb-run -a npm --prefix e2e-native test
+
+      - name: Upload native artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-e2e-artifacts
+          path: e2e-native/artifacts/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  audit:
+    name: Dependency audits
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+        with:
+          linux-deps: "false"
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: npm audit
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Install cargo audit and cargo deny
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit,cargo-deny
+
+      - name: cargo audit
+        run: cargo audit
+
+      - name: cargo deny
+        run: cargo deny check
+
+      - name: Sync Python environment
+        working-directory: pipeline
+        run: uv sync --frozen
+
+      - name: pip-audit
+        working-directory: pipeline
+        run: uv run pip-audit
+
+  secrets:
+    name: Secret scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install gitleaks with a verified checksum
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.local/bin"
+          archive="/tmp/gitleaks_8.30.1_linux_x64.tar.gz"
+          curl -sSfL -o "$archive" \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $archive" \
+            | sha256sum -c -
+          tar -xzf "$archive" -C "$HOME/.local/bin" gitleaks
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: gitleaks
+        run: gitleaks git --no-banner --redact .
+
+  licenses:
+    name: Dependency licenses
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+        with:
+          linux-deps: "false"
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Check production licenses
+        run: npm run check:licenses
+
+  build-smoke:
+    name: Build smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Build the frontend
+        run: npm run build
+
+      - name: Bundle budget
+        if: matrix.os == 'ubuntu-latest'
+        run: npm run check:bundle
+
+      - name: Build the unbundled desktop binary
+        run: npx tauri build --no-bundle
+
+      - name: Install xvfb
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends xvfb
+
+      - name: Self-check
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            xvfb-run -a target/release/ecuador-indicators --self-check --out sc.json
+          elif [ "${{ runner.os }}" = "Windows" ]; then
+            ./target/release/ecuador-indicators.exe --self-check --out sc.json
+          else
+            ./target/release/ecuador-indicators --self-check --out sc.json
+          fi
+          node scripts/assert-self-check.mjs sc.json
+
+  version:
+    name: Version sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-toolchain
+        with:
+          linux-deps: "false"
+
+      - name: Check version sync
+        run: npm run check:version
+
+  ci-ok:
+    name: CI OK
+    if: always()
+    needs:
+      - lint
+      - ts
+      - rust
+      - rust-coverage
+      - pipeline
+      - data
+      - bindings
+      - e2e-web
+      - e2e-native
+      - audit
+      - secrets
+      - licenses
+      - build-smoke
+      - version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail when any required job did not succeed
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          echo "$NEEDS"
+          jq -e 'to_entries | all(.value.result == "success")' <<< "$NEEDS"
